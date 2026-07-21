@@ -1,0 +1,61 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - JOB_DATA_DIR=/data/jobs
+      - PORT=3001
+      - JOB_RETENTION_HOURS=${JOB_RETENTION_HOURS:-24}
+      - MAX_UPLOAD_BYTES_HANDHELD=${MAX_UPLOAD_BYTES_HANDHELD:-67108864}
+      - MAX_UPLOAD_BYTES_3DS=${MAX_UPLOAD_BYTES_3DS:-4294967296}
+      - RATE_LIMIT_JOBS_PER_HOUR=${RATE_LIMIT_JOBS_PER_HOUR:-5}
+    volumes:
+      - job-data:/data/jobs
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - JOB_DATA_DIR=/data/jobs
+      - JOB_RETENTION_HOURS=${JOB_RETENTION_HOURS:-24}
+      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-2}
+      - JOB_TIMEOUT_MS=${JOB_TIMEOUT_MS:-900000}
+      - JAVA_HEAP_MB=${JAVA_HEAP_MB:-4096}
+      - RANDOMIZER_JAR_PATH=/opt/randomizer/PokeRandoZX.jar
+      - SETTINGS_SHIM_JAR_PATH=/opt/randomizer/settings-shim.jar
+    volumes:
+      - job-data:/data/jobs
+    deploy:
+      resources:
+        limits:
+          memory: ${WORKER_MEMORY_LIMIT:-6g}
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  redis-data:
+  job-data:

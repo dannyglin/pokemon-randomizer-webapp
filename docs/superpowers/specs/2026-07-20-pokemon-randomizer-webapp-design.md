@@ -54,11 +54,15 @@ processing).
    writes it to the job's directory, creates a job record (Redis, TTL'd),
    enqueues it in BullMQ, and returns a job ID + status/download URL.
 3. `worker` picks up the job:
-   a. If a 3DS zipped ROM folder was submitted, unzip it.
-   b. Run the Java shim: `settings.json` → `settings.rnqs` (binary, via the
+   a. Run the Java shim: `settings.json` → `settings.rnqs` (binary, via the
       real `Settings.write()`).
-   c. Run `java -Xmx4096M -jar PokeRandoZX.jar cli -s settings.rnqs -i <input> -o <output> [-d] [-u <update>] -l`
+   b. Run `java -Xmx4096M -jar PokeRandoZX.jar cli -s settings.rnqs -i <input> -o <output> [-d] [-u <update>] -l`
       with a hard timeout (default 15 min).
+   c. The CLI itself decides the real output filename/shape (extension
+      auto-corrected, or a directory when `-d` applies) — the worker scans
+      the job directory afterward rather than assuming the exact name it
+      passed via `-o`. If the result is a directory (3DS LayeredFS output),
+      zip it for download.
    d. On success: mark job `complete`, record output + log paths. On
       failure/timeout: mark job `failed` with the captured stderr/log
       excerpt.
@@ -114,14 +118,24 @@ the README/footer).
 ## 5. Game generation support
 
 - **Handheld (Gen 1–5)**: single-file ROM upload (`.gb/.gbc/.gba/.nds`).
-- **3DS (Gen 6/7)**: the randomizer needs an already-extracted ROM
-  *directory*. User uploads a `.zip` of that directory; the worker unzips it
-  and invokes the CLI with `-d`. An optional separate update file
-  (`.cia`, via `-u`) is a second upload field, show only for 3DS titles.
-  The UI explains this precondition (extraction is out of scope — same as
-  the desktop app).
+- **3DS (Gen 6/7)**: contrary to our first assumption, `CliRandomizer`'s
+  `-i` is a **single file** for every generation, including 3DS — a
+  decrypted `.3ds`/`.cxi` container, read via direct byte-offset parsing
+  (`Abstract3DSRomHandler.getProductCodeFromFile`), not a directory. Users
+  upload one file, same shape as handheld. An optional separate update file
+  (`.cxi`, via `-u`) is a second upload field shown only for 3DS titles —
+  supplying it auto-forces `-d` (save-as-directory) regardless of what the
+  user picked, per `CliRandomizer.performDirectRandomization`. The UI
+  explains that the ROM must already be decrypted (extraction/decryption
+  tooling is out of scope — same precondition the desktop app has).
+- `-d` controls the *output* shape, not input: without it, the CLI repacks
+  a single file (extension auto-corrected by the tool itself, e.g. `.cxi`);
+  with it (or when forced by an update file), the output is a LayeredFS
+  *directory* of loose files. Our worker zips that directory before
+  offering it for download, since browsers can't download a directory.
 - File size limits differ by tier: handheld ROMs are small (default cap
-  64MB); 3DS zips can be large (default cap 1GB, configurable via env).
+  64MB); decrypted 3DS ROMs are large single files (default cap 4GB,
+  configurable via env).
 
 ## 6. Storage, privacy, and legal guardrails
 

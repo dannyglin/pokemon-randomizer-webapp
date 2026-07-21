@@ -1,0 +1,1346 @@
+{
+  "sourceTag": "v4.6.1",
+  "sourceFiles": [
+    "src/com/dabomstew/pkrandom/Settings.java",
+    "src/com/dabomstew/pkrandom/MiscTweak.java",
+    "src/com/dabomstew/pkrandom/pokemon/GenRestrictions.java",
+    "src/com/dabomstew/pkrandom/pokemon/ExpCurve.java"
+  ],
+  "enums": {
+    "BaseStatisticsMod": [
+      "UNCHANGED",
+      "SHUFFLE",
+      "RANDOM"
+    ],
+    "ExpCurveMod": [
+      "LEGENDARIES",
+      "STRONG_LEGENDARIES",
+      "ALL"
+    ],
+    "AbilitiesMod": [
+      "UNCHANGED",
+      "RANDOMIZE"
+    ],
+    "StartersMod": [
+      "UNCHANGED",
+      "CUSTOM",
+      "COMPLETELY_RANDOM",
+      "RANDOM_WITH_TWO_EVOLUTIONS"
+    ],
+    "TypesMod": [
+      "UNCHANGED",
+      "RANDOM_FOLLOW_EVOLUTIONS",
+      "COMPLETELY_RANDOM"
+    ],
+    "EvolutionsMod": [
+      "UNCHANGED",
+      "RANDOM",
+      "RANDOM_EVERY_LEVEL"
+    ],
+    "MovesetsMod": [
+      "UNCHANGED",
+      "RANDOM_PREFER_SAME_TYPE",
+      "COMPLETELY_RANDOM",
+      "METRONOME_ONLY"
+    ],
+    "TrainersMod": [
+      "UNCHANGED",
+      "RANDOM",
+      "DISTRIBUTED",
+      "MAINPLAYTHROUGH",
+      "TYPE_THEMED",
+      "TYPE_THEMED_ELITE4_GYMS"
+    ],
+    "WildPokemonMod": [
+      "UNCHANGED",
+      "RANDOM",
+      "AREA_MAPPING",
+      "GLOBAL_MAPPING"
+    ],
+    "WildPokemonRestrictionMod": [
+      "NONE",
+      "SIMILAR_STRENGTH",
+      "CATCH_EM_ALL",
+      "TYPE_THEME_AREAS"
+    ],
+    "StaticPokemonMod": [
+      "UNCHANGED",
+      "RANDOM_MATCHING",
+      "COMPLETELY_RANDOM",
+      "SIMILAR_STRENGTH"
+    ],
+    "TotemPokemonMod": [
+      "UNCHANGED",
+      "RANDOM",
+      "SIMILAR_STRENGTH"
+    ],
+    "AllyPokemonMod": [
+      "UNCHANGED",
+      "RANDOM",
+      "SIMILAR_STRENGTH"
+    ],
+    "AuraMod": [
+      "UNCHANGED",
+      "RANDOM",
+      "SAME_STRENGTH"
+    ],
+    "TMsMod": [
+      "UNCHANGED",
+      "RANDOM"
+    ],
+    "TMsHMsCompatibilityMod": [
+      "UNCHANGED",
+      "RANDOM_PREFER_TYPE",
+      "COMPLETELY_RANDOM",
+      "FULL"
+    ],
+    "MoveTutorMovesMod": [
+      "UNCHANGED",
+      "RANDOM"
+    ],
+    "MoveTutorsCompatibilityMod": [
+      "UNCHANGED",
+      "RANDOM_PREFER_TYPE",
+      "COMPLETELY_RANDOM",
+      "FULL"
+    ],
+    "InGameTradesMod": [
+      "UNCHANGED",
+      "RANDOMIZE_GIVEN",
+      "RANDOMIZE_GIVEN_AND_REQUESTED"
+    ],
+    "FieldItemsMod": [
+      "UNCHANGED",
+      "SHUFFLE",
+      "RANDOM",
+      "RANDOM_EVEN"
+    ],
+    "ShopItemsMod": [
+      "UNCHANGED",
+      "SHUFFLE",
+      "RANDOM"
+    ],
+    "PickupItemsMod": [
+      "UNCHANGED",
+      "RANDOM"
+    ],
+    "ExpCurve": [
+      "SLOW",
+      "MEDIUM_SLOW",
+      "MEDIUM_FAST",
+      "FAST",
+      "ERRATIC",
+      "FLUCTUATING"
+    ]
+  },
+  "fields": [
+    {
+      "name": "romName",
+      "setter": "setRomName",
+      "type": "string",
+      "group": "General Options",
+      "notes": "ROM display-name metadata written into the settings string; not itself a randomization toggle. Included for completeness/full API parity."
+    },
+    {
+      "name": "currentRestrictions",
+      "setter": "setCurrentRestrictions",
+      "type": "genRestrictions",
+      "group": "General Options",
+      "notes": "Takes a GenRestrictions object (see top-level 'genRestrictions' section). Only meaningful when limitPokemon is true."
+    },
+    {
+      "name": "currentMiscTweaks",
+      "setter": "setCurrentMiscTweaks",
+      "type": "miscTweaksBitmask",
+      "group": "General Options",
+      "notes": "Takes an int bitmask. See top-level 'miscTweaks' section for each individual tweak's bit value; the shim should OR together the bitValue of every checked tweak and pass the result as this int."
+    },
+    {
+      "name": "updateMoves",
+      "setter": "setUpdateMoves",
+      "type": "boolean",
+      "group": "General Options",
+      "notes": "Update move data (power/accuracy/PP/etc) to match a later generation's values, up to updateMovesToGeneration."
+    },
+    {
+      "name": "updateMovesLegacy",
+      "setter": "setUpdateMovesLegacy",
+      "type": "boolean",
+      "group": "General Options",
+      "notes": "Legacy/older variant of the move-data-update feature, kept for backward compatibility with old settings strings."
+    },
+    {
+      "name": "updateMovesToGeneration",
+      "setter": "setUpdateMovesToGeneration",
+      "type": "int",
+      "group": "General Options",
+      "notes": "Generation number (e.g. 1-7) to update move data to; only relevant when updateMoves is true."
+    },
+    {
+      "name": "dualTypeOnly",
+      "setter": "setDualTypeOnly",
+      "type": "boolean",
+      "group": "General Options"
+    },
+    {
+      "name": "changeImpossibleEvolutions",
+      "setter": "setChangeImpossibleEvolutions",
+      "type": "boolean",
+      "group": "General Options"
+    },
+    {
+      "name": "makeEvolutionsEasier",
+      "setter": "setMakeEvolutionsEasier",
+      "type": "boolean",
+      "group": "General Options"
+    },
+    {
+      "name": "removeTimeBasedEvolutions",
+      "setter": "setRemoveTimeBasedEvolutions",
+      "type": "boolean",
+      "group": "General Options"
+    },
+    {
+      "name": "evosAllowAltFormes",
+      "setter": "setEvosAllowAltFormes",
+      "type": "boolean",
+      "group": "General Options",
+      "notes": "Declared alongside the other Evolutions-tab fields in Settings.java, but its setter is interleaved with the General Options setter cluster (between removeTimeBasedEvolutions and raceMode) and packed into the same 'evolutions' byte (byte 26) as evosSimilarStrength etc. Grouped here as General Options based on setter ordering; could plausibly belong under Evolutions instead - verify against the live GUI if exact tab placement matters."
+    },
+    {
+      "name": "raceMode",
+      "setter": "setRaceMode",
+      "type": "boolean",
+      "group": "General Options"
+    },
+    {
+      "name": "banIrregularAltFormes",
+      "setter": "setBanIrregularAltFormes",
+      "type": "boolean",
+      "group": "General Options"
+    },
+    {
+      "name": "blockBrokenMoves",
+      "setter": "setBlockBrokenMoves",
+      "type": "boolean",
+      "group": "General Options",
+      "notes": "Convenience setter: internally sets blockBrokenMovesetMoves, blockBrokenTMMoves, and blockBrokenTutorMoves all to the same value in one call. Those three fields also have their own independent setters (in Movesets, TMs, and Move Tutors groups respectively)."
+    },
+    {
+      "name": "limitPokemon",
+      "setter": "setLimitPokemon",
+      "type": "boolean",
+      "group": "General Options",
+      "notes": "Enables the generation-restriction pool defined by currentRestrictions (GenRestrictions)."
+    },
+    {
+      "name": "baseStatisticsMod",
+      "setter": "setBaseStatisticsMod",
+      "type": "enum",
+      "enumType": "BaseStatisticsMod",
+      "group": "Pokemon Base Statistics",
+      "notes": "Java setter signature is `setBaseStatisticsMod(boolean... bools)`. Internally it calls Settings.getEnum(BaseStatisticsMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to BaseStatisticsMod.values()[index_of_true]. The boolean array must be sized to BaseStatisticsMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "baseStatsFollowEvolutions",
+      "setter": "setBaseStatsFollowEvolutions",
+      "type": "boolean",
+      "group": "Pokemon Base Statistics"
+    },
+    {
+      "name": "baseStatsFollowMegaEvolutions",
+      "setter": "setBaseStatsFollowMegaEvolutions",
+      "type": "boolean",
+      "group": "Pokemon Base Statistics"
+    },
+    {
+      "name": "assignEvoStatsRandomly",
+      "setter": "setAssignEvoStatsRandomly",
+      "type": "boolean",
+      "group": "Pokemon Base Statistics"
+    },
+    {
+      "name": "updateBaseStats",
+      "setter": "setUpdateBaseStats",
+      "type": "boolean",
+      "group": "Pokemon Base Statistics"
+    },
+    {
+      "name": "updateBaseStatsToGeneration",
+      "setter": "setUpdateBaseStatsToGeneration",
+      "type": "int",
+      "group": "Pokemon Base Statistics",
+      "notes": "Generation number to update base stats to; only relevant when updateBaseStats is true."
+    },
+    {
+      "name": "standardizeEXPCurves",
+      "setter": "setStandardizeEXPCurves",
+      "type": "boolean",
+      "group": "Pokemon Base Statistics"
+    },
+    {
+      "name": "selectedEXPCurve",
+      "setter": "setSelectedEXPCurve",
+      "type": "enum",
+      "enumType": "ExpCurve",
+      "group": "Pokemon Base Statistics",
+      "notes": "Takes the ExpCurve enum directly (not varargs booleans) - com.dabomstew.pkrandom.pokemon.ExpCurve, not defined in Settings.java itself. Only relevant when standardizeEXPCurves is true."
+    },
+    {
+      "name": "expCurveMod",
+      "setter": "setExpCurveMod",
+      "type": "enum",
+      "enumType": "ExpCurveMod",
+      "group": "Pokemon Base Statistics",
+      "notes": "Controls which Pokemon (legendaries only / strong legendaries / all) get standardizeEXPCurves' selectedEXPCurve applied. Java setter signature is `setExpCurveMod(boolean... bools)`. Internally it calls Settings.getEnum(ExpCurveMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to ExpCurveMod.values()[index_of_true]. The boolean array must be sized to ExpCurveMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "abilitiesMod",
+      "setter": "setAbilitiesMod",
+      "type": "enum",
+      "enumType": "AbilitiesMod",
+      "group": "Pokemon Abilities",
+      "notes": "Java setter signature is `setAbilitiesMod(boolean... bools)`. Internally it calls Settings.getEnum(AbilitiesMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to AbilitiesMod.values()[index_of_true]. The boolean array must be sized to AbilitiesMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "allowWonderGuard",
+      "setter": "setAllowWonderGuard",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "abilitiesFollowEvolutions",
+      "setter": "setAbilitiesFollowEvolutions",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "abilitiesFollowMegaEvolutions",
+      "setter": "setAbilitiesFollowMegaEvolutions",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "banTrappingAbilities",
+      "setter": "setBanTrappingAbilities",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "banNegativeAbilities",
+      "setter": "setBanNegativeAbilities",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "banBadAbilities",
+      "setter": "setBanBadAbilities",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "weighDuplicateAbilitiesTogether",
+      "setter": "setWeighDuplicateAbilitiesTogether",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "ensureTwoAbilities",
+      "setter": "setEnsureTwoAbilities",
+      "type": "boolean",
+      "group": "Pokemon Abilities"
+    },
+    {
+      "name": "startersMod",
+      "setter": "setStartersMod",
+      "type": "enum",
+      "enumType": "StartersMod",
+      "group": "Starter Pokemon",
+      "notes": "Java setter signature is `setStartersMod(boolean... bools)`. Internally it calls Settings.getEnum(StartersMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to StartersMod.values()[index_of_true]. The boolean array must be sized to StartersMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "customStarters",
+      "setter": "setCustomStarters",
+      "type": "intArray",
+      "group": "Starter Pokemon",
+      "notes": "Takes int[3] (one 1-indexed Pokemon-list position per starter slot). Only relevant when startersMod == CUSTOM. In fromString(), values are stored on-disk as 0-indexed (read value + 1 = the id passed to the setter), so the shim should treat each element as a 1-indexed Pokemon dex/list position, matching the dropdown index used by the desktop GUI (RandomizerGUI), offset by 1."
+    },
+    {
+      "name": "randomizeStartersHeldItems",
+      "setter": "setRandomizeStartersHeldItems",
+      "type": "boolean",
+      "group": "Starter Pokemon"
+    },
+    {
+      "name": "banBadRandomStarterHeldItems",
+      "setter": "setBanBadRandomStarterHeldItems",
+      "type": "boolean",
+      "group": "Starter Pokemon"
+    },
+    {
+      "name": "allowStarterAltFormes",
+      "setter": "setAllowStarterAltFormes",
+      "type": "boolean",
+      "group": "Starter Pokemon"
+    },
+    {
+      "name": "typesMod",
+      "setter": "setTypesMod",
+      "type": "enum",
+      "enumType": "TypesMod",
+      "group": "Pokemon Types",
+      "notes": "Java setter signature is `setTypesMod(boolean... bools)`. Internally it calls Settings.getEnum(TypesMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to TypesMod.values()[index_of_true]. The boolean array must be sized to TypesMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "typesFollowMegaEvolutions",
+      "setter": "setTypesFollowMegaEvolutions",
+      "type": "boolean",
+      "group": "Pokemon Types"
+    },
+    {
+      "name": "evolutionsMod",
+      "setter": "setEvolutionsMod",
+      "type": "enum",
+      "enumType": "EvolutionsMod",
+      "group": "Evolutions",
+      "notes": "Java setter signature is `setEvolutionsMod(boolean... bools)`. Internally it calls Settings.getEnum(EvolutionsMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to EvolutionsMod.values()[index_of_true]. The boolean array must be sized to EvolutionsMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "evosSimilarStrength",
+      "setter": "setEvosSimilarStrength",
+      "type": "boolean",
+      "group": "Evolutions"
+    },
+    {
+      "name": "evosSameTyping",
+      "setter": "setEvosSameTyping",
+      "type": "boolean",
+      "group": "Evolutions"
+    },
+    {
+      "name": "evosMaxThreeStages",
+      "setter": "setEvosMaxThreeStages",
+      "type": "boolean",
+      "group": "Evolutions"
+    },
+    {
+      "name": "evosForceChange",
+      "setter": "setEvosForceChange",
+      "type": "boolean",
+      "group": "Evolutions"
+    },
+    {
+      "name": "randomizeMovePowers",
+      "setter": "setRandomizeMovePowers",
+      "type": "boolean",
+      "group": "Move Data"
+    },
+    {
+      "name": "randomizeMoveAccuracies",
+      "setter": "setRandomizeMoveAccuracies",
+      "type": "boolean",
+      "group": "Move Data"
+    },
+    {
+      "name": "randomizeMovePPs",
+      "setter": "setRandomizeMovePPs",
+      "type": "boolean",
+      "group": "Move Data"
+    },
+    {
+      "name": "randomizeMoveTypes",
+      "setter": "setRandomizeMoveTypes",
+      "type": "boolean",
+      "group": "Move Data"
+    },
+    {
+      "name": "randomizeMoveCategory",
+      "setter": "setRandomizeMoveCategory",
+      "type": "boolean",
+      "group": "Move Data",
+      "notes": "Only applicable to ROMs whose RomHandler reports hasPhysicalSpecialSplit() == true; the desktop app force-disables this otherwise."
+    },
+    {
+      "name": "movesetsMod",
+      "setter": "setMovesetsMod",
+      "type": "enum",
+      "enumType": "MovesetsMod",
+      "group": "Movesets",
+      "notes": "Java setter signature is `setMovesetsMod(boolean... bools)`. Internally it calls Settings.getEnum(MovesetsMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to MovesetsMod.values()[index_of_true]. The boolean array must be sized to MovesetsMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "startWithGuaranteedMoves",
+      "setter": "setStartWithGuaranteedMoves",
+      "type": "boolean",
+      "group": "Movesets"
+    },
+    {
+      "name": "guaranteedMoveCount",
+      "setter": "setGuaranteedMoveCount",
+      "type": "int",
+      "group": "Movesets",
+      "notes": "Number of guaranteed starting moves; GUI range is 2-4. Only relevant when startWithGuaranteedMoves is true."
+    },
+    {
+      "name": "reorderDamagingMoves",
+      "setter": "setReorderDamagingMoves",
+      "type": "boolean",
+      "group": "Movesets"
+    },
+    {
+      "name": "movesetsForceGoodDamaging",
+      "setter": "setMovesetsForceGoodDamaging",
+      "type": "boolean",
+      "group": "Movesets"
+    },
+    {
+      "name": "movesetsGoodDamagingPercent",
+      "setter": "setMovesetsGoodDamagingPercent",
+      "type": "int",
+      "group": "Movesets",
+      "notes": "Percent (0-100) of a Pokemon's moveset that should be 'good damaging' moves; only relevant when movesetsForceGoodDamaging is true."
+    },
+    {
+      "name": "blockBrokenMovesetMoves",
+      "setter": "setBlockBrokenMovesetMoves",
+      "type": "boolean",
+      "group": "Movesets",
+      "notes": "Also settable in bulk via the General Options 'blockBrokenMoves' convenience setter."
+    },
+    {
+      "name": "evolutionMovesForAll",
+      "setter": "setEvolutionMovesForAll",
+      "type": "boolean",
+      "group": "Movesets"
+    },
+    {
+      "name": "trainersMod",
+      "setter": "setTrainersMod",
+      "type": "enum",
+      "enumType": "TrainersMod",
+      "group": "Trainers",
+      "notes": "Java setter signature is `setTrainersMod(boolean... bools)`. Internally it calls Settings.getEnum(TrainersMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to TrainersMod.values()[index_of_true]. The boolean array must be sized to TrainersMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "rivalCarriesStarterThroughout",
+      "setter": "setRivalCarriesStarterThroughout",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "trainersUsePokemonOfSimilarStrength",
+      "setter": "setTrainersUsePokemonOfSimilarStrength",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "trainersMatchTypingDistribution",
+      "setter": "setTrainersMatchTypingDistribution",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "trainersBlockLegendaries",
+      "setter": "setTrainersBlockLegendaries",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "trainersEnforceDistribution",
+      "setter": "setTrainersEnforceDistribution",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "NOTE: Java setter uses a fluent/builder signature `public Settings setTrainersEnforceDistribution(boolean)` (returns Settings, not void), so it is NOT matched by a `grep \"public void set\"` scan. Included here for GUI/API parity. It is also not written/read anywhere in Settings.toString()/fromString() (the binary settings-string serialization) as of v4.6.1, so its persisted state may not round-trip through saved-settings files - verify against current app behavior before relying on it."
+    },
+    {
+      "name": "trainersEnforceMainPlaythrough",
+      "setter": "setTrainersEnforceMainPlaythrough",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "NOTE: Java setter uses a fluent/builder signature `public Settings setTrainersEnforceMainPlaythrough(boolean)` (returns Settings, not void), so it is NOT matched by a `grep \"public void set\"` scan. Included here for GUI/API parity. It is also not written/read anywhere in Settings.toString()/fromString() (the binary settings-string serialization) as of v4.6.1, so its persisted state may not round-trip through saved-settings files - verify against current app behavior before relying on it."
+    },
+    {
+      "name": "trainersBlockEarlyWonderGuard",
+      "setter": "setTrainersBlockEarlyWonderGuard",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "randomizeTrainerNames",
+      "setter": "setRandomizeTrainerNames",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "randomizeTrainerClassNames",
+      "setter": "setRandomizeTrainerClassNames",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "trainersForceFullyEvolved",
+      "setter": "setTrainersForceFullyEvolved",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "trainersForceFullyEvolvedLevel",
+      "setter": "setTrainersForceFullyEvolvedLevel",
+      "type": "int",
+      "group": "Trainers",
+      "notes": "Minimum level threshold; only relevant when trainersForceFullyEvolved is true."
+    },
+    {
+      "name": "trainersLevelModified",
+      "setter": "setTrainersLevelModified",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "trainersLevelModifier",
+      "setter": "setTrainersLevelModifier",
+      "type": "int",
+      "group": "Trainers",
+      "notes": "Percent modifier, range -50..50. Only relevant when trainersLevelModified is true."
+    },
+    {
+      "name": "eliteFourUniquePokemonNumber",
+      "setter": "setEliteFourUniquePokemonNumber",
+      "type": "int",
+      "group": "Trainers",
+      "notes": "Range 0-2 (packed into 3 bits alongside minimumCatchRateLevel in the settings byte format)."
+    },
+    {
+      "name": "allowTrainerAlternateFormes",
+      "setter": "setAllowTrainerAlternateFormes",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "swapTrainerMegaEvos",
+      "setter": "setSwapTrainerMegaEvos",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "additionalBossTrainerPokemon",
+      "setter": "setAdditionalBossTrainerPokemon",
+      "type": "int",
+      "group": "Trainers",
+      "notes": "Parameter name in Java is 'additional'. Number of extra Pokemon to add to boss trainers' teams."
+    },
+    {
+      "name": "additionalImportantTrainerPokemon",
+      "setter": "setAdditionalImportantTrainerPokemon",
+      "type": "int",
+      "group": "Trainers",
+      "notes": "Parameter name in Java is 'additional'. Number of extra Pokemon to add to important trainers' teams."
+    },
+    {
+      "name": "additionalRegularTrainerPokemon",
+      "setter": "setAdditionalRegularTrainerPokemon",
+      "type": "int",
+      "group": "Trainers",
+      "notes": "Parameter name in Java is 'additional'. Number of extra Pokemon to add to regular trainers' teams."
+    },
+    {
+      "name": "randomizeHeldItemsForBossTrainerPokemon",
+      "setter": "setRandomizeHeldItemsForBossTrainerPokemon",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "Java parameter name is 'bossTrainers'."
+    },
+    {
+      "name": "randomizeHeldItemsForImportantTrainerPokemon",
+      "setter": "setRandomizeHeldItemsForImportantTrainerPokemon",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "Java parameter name is 'importantTrainers'."
+    },
+    {
+      "name": "randomizeHeldItemsForRegularTrainerPokemon",
+      "setter": "setRandomizeHeldItemsForRegularTrainerPokemon",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "Java parameter name is 'regularTrainers'."
+    },
+    {
+      "name": "consumableItemsOnlyForTrainerPokemon",
+      "setter": "setConsumableItemsOnlyForTrainers",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "Field name (consumableItemsOnlyForTrainerPokemon) differs from the setter name (setConsumableItemsOnlyForTrainers) and its Java parameter is named 'consumableOnly'."
+    },
+    {
+      "name": "sensibleItemsOnlyForTrainerPokemon",
+      "setter": "setSensibleItemsOnlyForTrainers",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "Field name (sensibleItemsOnlyForTrainerPokemon) differs from the setter name (setSensibleItemsOnlyForTrainers) and its Java parameter is named 'sensibleOnly'."
+    },
+    {
+      "name": "highestLevelOnlyGetsItemsForTrainerPokemon",
+      "setter": "setHighestLevelGetsItemsForTrainers",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "Field name (highestLevelOnlyGetsItemsForTrainerPokemon) differs from the setter name (setHighestLevelGetsItemsForTrainers) and its Java parameter is named 'highestOnly'."
+    },
+    {
+      "name": "doubleBattleMode",
+      "setter": "setDoubleBattleMode",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "shinyChance",
+      "setter": "setShinyChance",
+      "type": "boolean",
+      "group": "Trainers",
+      "notes": "Despite the boolean type this represents an 'increased shiny chance' toggle, not a literal chance value."
+    },
+    {
+      "name": "betterTrainerMovesets",
+      "setter": "setBetterTrainerMovesets",
+      "type": "boolean",
+      "group": "Trainers"
+    },
+    {
+      "name": "wildPokemonMod",
+      "setter": "setWildPokemonMod",
+      "type": "enum",
+      "enumType": "WildPokemonMod",
+      "group": "Wild Pokemon",
+      "notes": "Java setter signature is `setWildPokemonMod(boolean... bools)`. Internally it calls Settings.getEnum(WildPokemonMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to WildPokemonMod.values()[index_of_true]. The boolean array must be sized to WildPokemonMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "wildPokemonRestrictionMod",
+      "setter": "setWildPokemonRestrictionMod",
+      "type": "enum",
+      "enumType": "WildPokemonRestrictionMod",
+      "group": "Wild Pokemon",
+      "notes": "Java setter signature is `setWildPokemonRestrictionMod(boolean... bools)`. Internally it calls Settings.getEnum(WildPokemonRestrictionMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to WildPokemonRestrictionMod.values()[index_of_true]. The boolean array must be sized to WildPokemonRestrictionMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "useTimeBasedEncounters",
+      "setter": "setUseTimeBasedEncounters",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "blockWildLegendaries",
+      "setter": "setBlockWildLegendaries",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "useMinimumCatchRate",
+      "setter": "setUseMinimumCatchRate",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "minimumCatchRateLevel",
+      "setter": "setMinimumCatchRateLevel",
+      "type": "int",
+      "group": "Wild Pokemon",
+      "notes": "Range roughly 1-5 (GUI slider); only relevant when useMinimumCatchRate is true."
+    },
+    {
+      "name": "randomizeWildPokemonHeldItems",
+      "setter": "setRandomizeWildPokemonHeldItems",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "banBadRandomWildPokemonHeldItems",
+      "setter": "setBanBadRandomWildPokemonHeldItems",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "balanceShakingGrass",
+      "setter": "setBalanceShakingGrass",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "wildLevelsModified",
+      "setter": "setWildLevelsModified",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "wildLevelModifier",
+      "setter": "setWildLevelModifier",
+      "type": "int",
+      "group": "Wild Pokemon",
+      "notes": "Percent modifier, range -50..50. Only relevant when wildLevelsModified is true."
+    },
+    {
+      "name": "allowWildAltFormes",
+      "setter": "setAllowWildAltFormes",
+      "type": "boolean",
+      "group": "Wild Pokemon"
+    },
+    {
+      "name": "staticPokemonMod",
+      "setter": "setStaticPokemonMod",
+      "type": "enum",
+      "enumType": "StaticPokemonMod",
+      "group": "Static Pokemon",
+      "notes": "Java setter signature is `setStaticPokemonMod(boolean... bools)`. Internally it calls Settings.getEnum(StaticPokemonMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to StaticPokemonMod.values()[index_of_true]. The boolean array must be sized to StaticPokemonMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "limitMainGameLegendaries",
+      "setter": "setLimitMainGameLegendaries",
+      "type": "boolean",
+      "group": "Static Pokemon",
+      "notes": "Field is declared in Settings.java alongside the Starter Pokemon fields, but its setter is placed in the Static Pokemon setter cluster and it is serialized in the 'static pokemon' byte - it appears to govern both starters and static encounters' legendary pool. Consider surfacing it in both the Starters and Static Pokemon UI sections."
+    },
+    {
+      "name": "limit600",
+      "setter": "setLimit600",
+      "type": "boolean",
+      "group": "Static Pokemon",
+      "notes": "Field is declared in Settings.java alongside the Starter Pokemon fields, but its setter is placed in the Static Pokemon setter cluster and it is serialized in the 'static pokemon' byte - it appears to govern both starters and static encounters (limits to Pokemon with base stat total <= 600). Consider surfacing it in both the Starters and Static Pokemon UI sections."
+    },
+    {
+      "name": "allowStaticAltFormes",
+      "setter": "setAllowStaticAltFormes",
+      "type": "boolean",
+      "group": "Static Pokemon"
+    },
+    {
+      "name": "swapStaticMegaEvos",
+      "setter": "setSwapStaticMegaEvos",
+      "type": "boolean",
+      "group": "Static Pokemon"
+    },
+    {
+      "name": "staticLevelModified",
+      "setter": "setStaticLevelModified",
+      "type": "boolean",
+      "group": "Static Pokemon"
+    },
+    {
+      "name": "staticLevelModifier",
+      "setter": "setStaticLevelModifier",
+      "type": "int",
+      "group": "Static Pokemon",
+      "notes": "Percent modifier, range -50..50. Only relevant when staticLevelModified is true."
+    },
+    {
+      "name": "correctStaticMusic",
+      "setter": "setCorrectStaticMusic",
+      "type": "boolean",
+      "group": "Static Pokemon"
+    },
+    {
+      "name": "totemPokemonMod",
+      "setter": "setTotemPokemonMod",
+      "type": "enum",
+      "enumType": "TotemPokemonMod",
+      "group": "Totem Pokemon",
+      "notes": "Totem Pokemon only exist in Gen 7 (Sun/Moon/Ultra Sun/Ultra Moon) ROMs. Java setter signature is `setTotemPokemonMod(boolean... bools)`. Internally it calls Settings.getEnum(TotemPokemonMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to TotemPokemonMod.values()[index_of_true]. The boolean array must be sized to TotemPokemonMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "allyPokemonMod",
+      "setter": "setAllyPokemonMod",
+      "type": "enum",
+      "enumType": "AllyPokemonMod",
+      "group": "Totem Pokemon",
+      "notes": "Controls the ally Pokemon that assist Totem Pokemon in battle. Java setter signature is `setAllyPokemonMod(boolean... bools)`. Internally it calls Settings.getEnum(AllyPokemonMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to AllyPokemonMod.values()[index_of_true]. The boolean array must be sized to AllyPokemonMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "auraMod",
+      "setter": "setAuraMod",
+      "type": "enum",
+      "enumType": "AuraMod",
+      "group": "Totem Pokemon",
+      "notes": "Controls the aura effect Totem Pokemon apply in battle. Java setter signature is `setAuraMod(boolean... bools)`. Internally it calls Settings.getEnum(AuraMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to AuraMod.values()[index_of_true]. The boolean array must be sized to AuraMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "randomizeTotemHeldItems",
+      "setter": "setRandomizeTotemHeldItems",
+      "type": "boolean",
+      "group": "Totem Pokemon"
+    },
+    {
+      "name": "totemLevelsModified",
+      "setter": "setTotemLevelsModified",
+      "type": "boolean",
+      "group": "Totem Pokemon"
+    },
+    {
+      "name": "totemLevelModifier",
+      "setter": "setTotemLevelModifier",
+      "type": "int",
+      "group": "Totem Pokemon",
+      "notes": "Percent modifier, range -50..50. Only relevant when totemLevelsModified is true."
+    },
+    {
+      "name": "allowTotemAltFormes",
+      "setter": "setAllowTotemAltFormes",
+      "type": "boolean",
+      "group": "Totem Pokemon"
+    },
+    {
+      "name": "tmsMod",
+      "setter": "setTmsMod",
+      "type": "enum",
+      "enumType": "TMsMod",
+      "group": "TMs",
+      "notes": "Java setter signature is `setTmsMod(boolean... bools)`. Internally it calls Settings.getEnum(TMsMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to TMsMod.values()[index_of_true]. The boolean array must be sized to TMsMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "tmLevelUpMoveSanity",
+      "setter": "setTmLevelUpMoveSanity",
+      "type": "boolean",
+      "group": "TMs"
+    },
+    {
+      "name": "keepFieldMoveTMs",
+      "setter": "setKeepFieldMoveTMs",
+      "type": "boolean",
+      "group": "TMs"
+    },
+    {
+      "name": "fullHMCompat",
+      "setter": "setFullHMCompat",
+      "type": "boolean",
+      "group": "TMs"
+    },
+    {
+      "name": "tmsForceGoodDamaging",
+      "setter": "setTmsForceGoodDamaging",
+      "type": "boolean",
+      "group": "TMs"
+    },
+    {
+      "name": "tmsGoodDamagingPercent",
+      "setter": "setTmsGoodDamagingPercent",
+      "type": "int",
+      "group": "TMs",
+      "notes": "Percent (0-100); only relevant when tmsForceGoodDamaging is true."
+    },
+    {
+      "name": "blockBrokenTMMoves",
+      "setter": "setBlockBrokenTMMoves",
+      "type": "boolean",
+      "group": "TMs",
+      "notes": "Also settable in bulk via the General Options 'blockBrokenMoves' convenience setter."
+    },
+    {
+      "name": "tmsHmsCompatibilityMod",
+      "setter": "setTmsHmsCompatibilityMod",
+      "type": "enum",
+      "enumType": "TMsHMsCompatibilityMod",
+      "group": "TMs",
+      "notes": "Java setter signature is `setTmsHmsCompatibilityMod(boolean... bools)`. Internally it calls Settings.getEnum(TMsHMsCompatibilityMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to TMsHMsCompatibilityMod.values()[index_of_true]. The boolean array must be sized to TMsHMsCompatibilityMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "tmsFollowEvolutions",
+      "setter": "setTmsFollowEvolutions",
+      "type": "boolean",
+      "group": "TMs"
+    },
+    {
+      "name": "moveTutorMovesMod",
+      "setter": "setMoveTutorMovesMod",
+      "type": "enum",
+      "enumType": "MoveTutorMovesMod",
+      "group": "Move Tutors",
+      "notes": "Only applicable to ROMs that support move tutors (Gen 3 Emerald/FRLG onward). Java setter signature is `setMoveTutorMovesMod(boolean... bools)`. Internally it calls Settings.getEnum(MoveTutorMovesMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to MoveTutorMovesMod.values()[index_of_true]. The boolean array must be sized to MoveTutorMovesMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "tutorLevelUpMoveSanity",
+      "setter": "setTutorLevelUpMoveSanity",
+      "type": "boolean",
+      "group": "Move Tutors"
+    },
+    {
+      "name": "keepFieldMoveTutors",
+      "setter": "setKeepFieldMoveTutors",
+      "type": "boolean",
+      "group": "Move Tutors"
+    },
+    {
+      "name": "tutorsForceGoodDamaging",
+      "setter": "setTutorsForceGoodDamaging",
+      "type": "boolean",
+      "group": "Move Tutors"
+    },
+    {
+      "name": "tutorsGoodDamagingPercent",
+      "setter": "setTutorsGoodDamagingPercent",
+      "type": "int",
+      "group": "Move Tutors",
+      "notes": "Percent (0-100); only relevant when tutorsForceGoodDamaging is true."
+    },
+    {
+      "name": "blockBrokenTutorMoves",
+      "setter": "setBlockBrokenTutorMoves",
+      "type": "boolean",
+      "group": "Move Tutors",
+      "notes": "Also settable in bulk via the General Options 'blockBrokenMoves' convenience setter."
+    },
+    {
+      "name": "moveTutorsCompatibilityMod",
+      "setter": "setMoveTutorsCompatibilityMod",
+      "type": "enum",
+      "enumType": "MoveTutorsCompatibilityMod",
+      "group": "Move Tutors",
+      "notes": "Java setter signature is `setMoveTutorsCompatibilityMod(boolean... bools)`. Internally it calls Settings.getEnum(MoveTutorsCompatibilityMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to MoveTutorsCompatibilityMod.values()[index_of_true]. The boolean array must be sized to MoveTutorsCompatibilityMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "tutorFollowEvolutions",
+      "setter": "setTutorFollowEvolutions",
+      "type": "boolean",
+      "group": "Move Tutors"
+    },
+    {
+      "name": "inGameTradesMod",
+      "setter": "setInGameTradesMod",
+      "type": "enum",
+      "enumType": "InGameTradesMod",
+      "group": "In-Game Trades",
+      "notes": "Java setter signature is `setInGameTradesMod(boolean... bools)`. Internally it calls Settings.getEnum(InGameTradesMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to InGameTradesMod.values()[index_of_true]. The boolean array must be sized to InGameTradesMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "randomizeInGameTradesNicknames",
+      "setter": "setRandomizeInGameTradesNicknames",
+      "type": "boolean",
+      "group": "In-Game Trades"
+    },
+    {
+      "name": "randomizeInGameTradesOTs",
+      "setter": "setRandomizeInGameTradesOTs",
+      "type": "boolean",
+      "group": "In-Game Trades"
+    },
+    {
+      "name": "randomizeInGameTradesIVs",
+      "setter": "setRandomizeInGameTradesIVs",
+      "type": "boolean",
+      "group": "In-Game Trades"
+    },
+    {
+      "name": "randomizeInGameTradesItems",
+      "setter": "setRandomizeInGameTradesItems",
+      "type": "boolean",
+      "group": "In-Game Trades"
+    },
+    {
+      "name": "fieldItemsMod",
+      "setter": "setFieldItemsMod",
+      "type": "enum",
+      "enumType": "FieldItemsMod",
+      "group": "Field Items",
+      "notes": "Java setter signature is `setFieldItemsMod(boolean... bools)`. Internally it calls Settings.getEnum(FieldItemsMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to FieldItemsMod.values()[index_of_true]. The boolean array must be sized to FieldItemsMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "banBadRandomFieldItems",
+      "setter": "setBanBadRandomFieldItems",
+      "type": "boolean",
+      "group": "Field Items"
+    },
+    {
+      "name": "shopItemsMod",
+      "setter": "setShopItemsMod",
+      "type": "enum",
+      "enumType": "ShopItemsMod",
+      "group": "Shop Items",
+      "notes": "Java setter signature is `setShopItemsMod(boolean... bools)`. Internally it calls Settings.getEnum(ShopItemsMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to ShopItemsMod.values()[index_of_true]. The boolean array must be sized to ShopItemsMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "banBadRandomShopItems",
+      "setter": "setBanBadRandomShopItems",
+      "type": "boolean",
+      "group": "Shop Items"
+    },
+    {
+      "name": "banRegularShopItems",
+      "setter": "setBanRegularShopItems",
+      "type": "boolean",
+      "group": "Shop Items"
+    },
+    {
+      "name": "banOPShopItems",
+      "setter": "setBanOPShopItems",
+      "type": "boolean",
+      "group": "Shop Items"
+    },
+    {
+      "name": "balanceShopPrices",
+      "setter": "setBalanceShopPrices",
+      "type": "boolean",
+      "group": "Shop Items"
+    },
+    {
+      "name": "guaranteeEvolutionItems",
+      "setter": "setGuaranteeEvolutionItems",
+      "type": "boolean",
+      "group": "Shop Items"
+    },
+    {
+      "name": "guaranteeXItems",
+      "setter": "setGuaranteeXItems",
+      "type": "boolean",
+      "group": "Shop Items"
+    },
+    {
+      "name": "pickupItemsMod",
+      "setter": "setPickupItemsMod",
+      "type": "enum",
+      "enumType": "PickupItemsMod",
+      "group": "Pickup Items",
+      "notes": "Java setter signature is `setPickupItemsMod(boolean... bools)`. Internally it calls Settings.getEnum(PickupItemsMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to PickupItemsMod.values()[index_of_true]. The boolean array must be sized to PickupItemsMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
+    },
+    {
+      "name": "banBadRandomPickupItems",
+      "setter": "setBanBadRandomPickupItems",
+      "type": "boolean",
+      "group": "Pickup Items"
+    }
+  ],
+  "miscTweaks": [
+    {
+      "name": "BW_EXP_PATCH",
+      "bitValue": 1,
+      "bitExpression": "1 << 0",
+      "priority": 0,
+      "bundleKey": "bwPatch",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.bwPatch.name' / 'CodeTweaks.bwPatch.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "NERF_X_ACCURACY",
+      "bitValue": 2,
+      "bitExpression": "1 << 1",
+      "priority": 0,
+      "bundleKey": "nerfXAcc",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.nerfXAcc.name' / 'CodeTweaks.nerfXAcc.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "FIX_CRIT_RATE",
+      "bitValue": 4,
+      "bitExpression": "1 << 2",
+      "priority": 0,
+      "bundleKey": "critRateFix",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.critRateFix.name' / 'CodeTweaks.critRateFix.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "FASTEST_TEXT",
+      "bitValue": 8,
+      "bitExpression": "1 << 3",
+      "priority": 0,
+      "bundleKey": "fastestText",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.fastestText.name' / 'CodeTweaks.fastestText.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "RUNNING_SHOES_INDOORS",
+      "bitValue": 16,
+      "bitExpression": "1 << 4",
+      "priority": 0,
+      "bundleKey": "runningShoes",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.runningShoes.name' / 'CodeTweaks.runningShoes.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "RANDOMIZE_PC_POTION",
+      "bitValue": 32,
+      "bitExpression": "1 << 5",
+      "priority": 0,
+      "bundleKey": "pcPotion",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.pcPotion.name' / 'CodeTweaks.pcPotion.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "ALLOW_PIKACHU_EVOLUTION",
+      "bitValue": 64,
+      "bitExpression": "1 << 6",
+      "priority": 0,
+      "bundleKey": "pikachuEvo",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.pikachuEvo.name' / 'CodeTweaks.pikachuEvo.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "NATIONAL_DEX_AT_START",
+      "bitValue": 128,
+      "bitExpression": "1 << 7",
+      "priority": 0,
+      "bundleKey": "nationalDex",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.nationalDex.name' / 'CodeTweaks.nationalDex.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "UPDATE_TYPE_EFFECTIVENESS",
+      "bitValue": 256,
+      "bitExpression": "1 << 8",
+      "priority": 0,
+      "bundleKey": "typeEffectiveness",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.typeEffectiveness.name' / 'CodeTweaks.typeEffectiveness.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "FORCE_CHALLENGE_MODE",
+      "bitValue": 512,
+      "bitExpression": "1 << 9",
+      "priority": 0,
+      "bundleKey": "forceChallengeMode",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.forceChallengeMode.name' / 'CodeTweaks.forceChallengeMode.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "LOWER_CASE_POKEMON_NAMES",
+      "bitValue": 1024,
+      "bitExpression": "1 << 10",
+      "priority": 0,
+      "bundleKey": "lowerCaseNames",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.lowerCaseNames.name' / 'CodeTweaks.lowerCaseNames.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "RANDOMIZE_CATCHING_TUTORIAL",
+      "bitValue": 2048,
+      "bitExpression": "1 << 11",
+      "priority": 0,
+      "bundleKey": "catchingTutorial",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.catchingTutorial.name' / 'CodeTweaks.catchingTutorial.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "BAN_LUCKY_EGG",
+      "bitValue": 4096,
+      "bitExpression": "1 << 12",
+      "priority": 1,
+      "bundleKey": "luckyEgg",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.luckyEgg.name' / 'CodeTweaks.luckyEgg.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "NO_FREE_LUCKY_EGG",
+      "bitValue": 8192,
+      "bitExpression": "1 << 13",
+      "priority": 0,
+      "bundleKey": "freeLuckyEgg",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.freeLuckyEgg.name' / 'CodeTweaks.freeLuckyEgg.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "BAN_BIG_MANIAC_ITEMS",
+      "bitValue": 16384,
+      "bitExpression": "1 << 14",
+      "priority": 1,
+      "bundleKey": "maniacItems",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.maniacItems.name' / 'CodeTweaks.maniacItems.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "SOS_BATTLES_FOR_ALL",
+      "bitValue": 32768,
+      "bitExpression": "1 << 15",
+      "priority": 0,
+      "bundleKey": "sosBattles",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.sosBattles.name' / 'CodeTweaks.sosBattles.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "BALANCE_STATIC_LEVELS",
+      "bitValue": 65536,
+      "bitExpression": "1 << 16",
+      "priority": 0,
+      "bundleKey": "balanceStaticLevels",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.balanceStaticLevels.name' / 'CodeTweaks.balanceStaticLevels.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "RETAIN_ALT_FORMES",
+      "bitValue": 131072,
+      "bitExpression": "1 << 17",
+      "priority": 0,
+      "bundleKey": "retainAltFormes",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.retainAltFormes.name' / 'CodeTweaks.retainAltFormes.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "RUN_WITHOUT_RUNNING_SHOES",
+      "bitValue": 262144,
+      "bitExpression": "1 << 18",
+      "priority": 0,
+      "bundleKey": "runWithoutRunningShoes",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.runWithoutRunningShoes.name' / 'CodeTweaks.runWithoutRunningShoes.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "FASTER_HP_AND_EXP_BARS",
+      "bitValue": 524288,
+      "bitExpression": "1 << 19",
+      "priority": 0,
+      "bundleKey": "fasterHpAndExpBars",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.fasterHpAndExpBars.name' / 'CodeTweaks.fasterHpAndExpBars.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "FAST_DISTORTION_WORLD",
+      "bitValue": 1048576,
+      "bitExpression": "1 << 20",
+      "priority": 0,
+      "bundleKey": "fastDistortionWorld",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.fastDistortionWorld.name' / 'CodeTweaks.fastDistortionWorld.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "UPDATE_ROTOM_FORME_TYPING",
+      "bitValue": 2097152,
+      "bitExpression": "1 << 21",
+      "priority": 0,
+      "bundleKey": "updateRotomFormeTyping",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.updateRotomFormeTyping.name' / 'CodeTweaks.updateRotomFormeTyping.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    },
+    {
+      "name": "DISABLE_LOW_HP_MUSIC",
+      "bitValue": 4194304,
+      "bitExpression": "1 << 22",
+      "priority": 0,
+      "bundleKey": "disableLowHpMusic",
+      "notes": "Display name/tooltip text are loaded at runtime from the resource bundle com/dabomstew/pkrandom/newgui/Bundle.properties via keys 'CodeTweaks.disableLowHpMusic.name' / 'CodeTweaks.disableLowHpMusic.toolTipText' - not available from MiscTweak.java source alone; the shim/frontend should either fetch that properties file too or fall back to a humanized version of the enum name."
+    }
+  ],
+  "genRestrictions": {
+    "javaClass": "com.dabomstew.pkrandom.pokemon.GenRestrictions",
+    "notes": "Plain bag of public boolean fields (no getters/setters - accessed directly as public fields in Java). Settings.setCurrentRestrictions(GenRestrictions) takes a whole instance of this object. The int-constructor bit layout (GenRestrictions(int state)) is: bit0=allow_gen1, bit1=allow_gen2, bit2=allow_gen3, bit3=allow_gen4, bit4=allow_gen5, bit5=allow_gen6, bit6=allow_gen7, bit7=allow_evolutionary_relatives.",
+    "fields": [
+      {
+        "name": "allow_gen1",
+        "type": "boolean",
+        "bitIndex": 0,
+        "notes": "Allow Pokemon from Generation 1 (Red/Blue/Yellow) in the randomization pool."
+      },
+      {
+        "name": "allow_gen2",
+        "type": "boolean",
+        "bitIndex": 1,
+        "notes": "Allow Pokemon from Generation 2 (Gold/Silver/Crystal)."
+      },
+      {
+        "name": "allow_gen3",
+        "type": "boolean",
+        "bitIndex": 2,
+        "notes": "Allow Pokemon from Generation 3 (Ruby/Sapphire/Emerald/FR/LG)."
+      },
+      {
+        "name": "allow_gen4",
+        "type": "boolean",
+        "bitIndex": 3,
+        "notes": "Allow Pokemon from Generation 4 (Diamond/Pearl/Platinum/HG/SS)."
+      },
+      {
+        "name": "allow_gen5",
+        "type": "boolean",
+        "bitIndex": 4,
+        "notes": "Allow Pokemon from Generation 5 (Black/White/B2/W2)."
+      },
+      {
+        "name": "allow_gen6",
+        "type": "boolean",
+        "bitIndex": 5,
+        "notes": "Allow Pokemon from Generation 6 (X/Y/OR/AS)."
+      },
+      {
+        "name": "allow_gen7",
+        "type": "boolean",
+        "bitIndex": 6,
+        "notes": "Allow Pokemon from Generation 7 (Sun/Moon/Ultra Sun/Ultra Moon)."
+      },
+      {
+        "name": "allow_evolutionary_relatives",
+        "type": "boolean",
+        "bitIndex": 7,
+        "notes": "Also allow Pokemon that are evolutionary relatives (pre-evolutions/evolutions) of an allowed-generation Pokemon, even if that relative's own generation is not checked."
+      }
+    ]
+  }
+}

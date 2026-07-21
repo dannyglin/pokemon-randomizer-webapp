@@ -1,0 +1,67 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+.app {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.disclaimer {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.settings-group {
+  border: 1px solid #8884;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  padding: 0.25rem 0.75rem;
+}
+
+.settings-group-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.4rem;
+  padding: 0.5rem 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+}
+
+.field-boolean {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field-note {
+  opacity: 0.7;
+}
+
+.error {
+  color: #d33;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: #2a6df4;
+  color: white;
+  text-decoration: none;
+  margin-right: 0.5rem;
+}
+
+.button.secondary {
+  background: #6c757d;
+}

@@ -1,0 +1,19 @@
+node_modules/
+dist/
+build/
+*.log
+.env
+.env.local
+
+# Java build artifacts / vendored jar (fetched at Docker build time, not committed)
+java-shim/vendor/
+java-shim/out/
+*.class
+
+# Ephemeral job data (local dev)
+data/jobs/
+
+# OS/editor
+.DS_Store
+.idea/
+*.iml
