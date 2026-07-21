@@ -9,9 +9,9 @@
 FROM eclipse-temurin:17-jdk-jammy AS vendor
 ARG RANDOMIZER_VERSION=v4.6.1
 ARG RANDOMIZER_ZIP_NAME=PokeRandoZX-v4_6_1.zip
-ARG RANDOMIZER_ZIP_SHA256=26051fe8a6665ea0582dfcd4d1c3e4889da42a2f731f5fc530fff0cb691a43f
+ARG RANDOMIZER_ZIP_SHA256=26051fe8a6665ea0582dfcd4d1c3e4889da42a2f731f5fc530fff0cb691a43fd
 ARG JSON_LIB_VERSION=20250517
-ARG JSON_LIB_SHA256=3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b4579
+ARG JSON_LIB_SHA256=3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796
 RUN apt-get update && apt-get install -y --no-install-recommends curl unzip ca-certificates && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /vendor
