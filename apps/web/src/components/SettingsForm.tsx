@@ -6,6 +6,7 @@ interface Props {
   schema: SettingsSchema;
   values: SettingsValues;
   onChange: (next: SettingsValues) => void;
+  filter: string;
 }
 
 function groupFields(fields: SettingsSchemaField[]): Map<string, SettingsSchemaField[]> {
@@ -18,22 +19,36 @@ function groupFields(fields: SettingsSchemaField[]): Map<string, SettingsSchemaF
   return groups;
 }
 
+function matchesFilter(field: SettingsSchemaField, query: string): boolean {
+  if (!query) return true;
+  const haystack = `${field.name} ${field.group}`.toLowerCase();
+  return haystack.includes(query);
+}
+
 /**
- * Renders all ~144 Settings fields generically from settings-schema.json
+ * Renders all ~150 Settings fields generically from settings-schema.json
  * rather than one hand-written control per field — see design spec §4.
  */
-export function SettingsForm({ schema, values, onChange }: Props) {
+export function SettingsForm({ schema, values, onChange, filter }: Props) {
   const groups = groupFields(schema.fields);
+  const query = filter.trim().toLowerCase();
 
   const setField = (name: string, value: unknown) => {
     onChange({ ...values, [name]: value });
   };
 
+  const visibleGroups = [...groups.entries()]
+    .map(([groupName, fields]) => [groupName, fields.filter((f) => matchesFilter(f, query))] as const)
+    .filter(([, fields]) => fields.length > 0);
+
   return (
     <div className="settings-form">
-      {[...groups.entries()].map(([groupName, fields]) => (
-        <details key={groupName} className="settings-group" open={false}>
-          <summary>{groupName}</summary>
+      {visibleGroups.map(([groupName, fields]) => (
+        <details key={groupName} className="settings-group" open={query.length > 0}>
+          <summary>
+            <span>{groupName}</span>
+            <span className="settings-group-count">{fields.length}</span>
+          </summary>
           <div className="settings-group-body">
             {fields.map((field) => (
               <FieldControl
@@ -47,7 +62,18 @@ export function SettingsForm({ schema, values, onChange }: Props) {
           </div>
         </details>
       ))}
+      {visibleGroups.length === 0 ? <p className="field-note">No settings match "{filter}".</p> : null}
     </div>
+  );
+}
+
+function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="toggle">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span className="toggle-track" aria-hidden="true" />
+      {label}
+    </label>
   );
 }
 
@@ -65,8 +91,8 @@ function FieldControl({
   switch (field.type) {
     case "string":
       return (
-        <label className="field field-string">
-          {field.name}
+        <label className="field">
+          <span>{field.name}</span>
           <input type="text" value={typeof value === "string" ? value : ""} onChange={(e) => onChange(e.target.value)} />
         </label>
       );
@@ -74,7 +100,7 @@ function FieldControl({
     case "intArray": {
       const arr = Array.isArray(value) ? (value as number[]) : [0, 0, 0];
       return (
-        <fieldset className="field field-int-array">
+        <fieldset className="field-int-array">
           <legend>{field.name}</legend>
           {arr.map((v, i) => (
             <input
@@ -93,17 +119,12 @@ function FieldControl({
     }
 
     case "boolean":
-      return (
-        <label className="field field-boolean">
-          <input type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} />
-          {field.name}
-        </label>
-      );
+      return <Toggle label={field.name} checked={Boolean(value)} onChange={onChange} />;
 
     case "int":
       return (
-        <label className="field field-int">
-          {field.name}
+        <label className="field">
+          <span>{field.name}</span>
           <input
             type="number"
             value={typeof value === "number" ? value : 0}
@@ -115,8 +136,8 @@ function FieldControl({
     case "enum": {
       const options = field.enumType ? (schema.enums[field.enumType] ?? []) : [];
       return (
-        <label className="field field-enum">
-          {field.name}
+        <label className="field">
+          <span>{field.name}</span>
           <select value={typeof value === "string" ? value : options[0] ?? ""} onChange={(e) => onChange(e.target.value)}>
             {options.map((opt) => (
               <option key={opt} value={opt}>
@@ -131,25 +152,27 @@ function FieldControl({
     case "genRestrictions": {
       const current = (value as Record<string, unknown>) ?? {};
       return (
-        <fieldset className="field field-gen-restrictions">
+        <fieldset className="field-gen-restrictions">
           <legend>{field.name}</legend>
           {schema.genRestrictions.fields.map((sub) => (
-            <label key={sub.name} className="field field-boolean">
+            <div key={sub.name}>
               {sub.type === "boolean" ? (
-                <input
-                  type="checkbox"
+                <Toggle
+                  label={sub.name}
                   checked={Boolean(current[sub.name])}
-                  onChange={(e) => onChange({ ...current, [sub.name]: e.target.checked })}
+                  onChange={(checked) => onChange({ ...current, [sub.name]: checked })}
                 />
               ) : (
-                <input
-                  type="number"
-                  value={typeof current[sub.name] === "number" ? (current[sub.name] as number) : 0}
-                  onChange={(e) => onChange({ ...current, [sub.name]: Number(e.target.value) })}
-                />
+                <label className="field">
+                  <span>{sub.name}</span>
+                  <input
+                    type="number"
+                    value={typeof current[sub.name] === "number" ? (current[sub.name] as number) : 0}
+                    onChange={(e) => onChange({ ...current, [sub.name]: Number(e.target.value) })}
+                  />
+                </label>
               )}
-              {sub.name}
-            </label>
+            </div>
           ))}
         </fieldset>
       );
@@ -158,22 +181,21 @@ function FieldControl({
     case "miscTweaksBitmask": {
       const selected = new Set((value as string[] | undefined) ?? []);
       return (
-        <fieldset className="field field-misc-tweaks">
+        <fieldset className="field-misc-tweaks">
           <legend>{field.name}</legend>
           {schema.miscTweaks.map((tweak) => (
-            <label key={tweak.name} className="field field-boolean">
-              <input
-                type="checkbox"
+            <div key={tweak.name}>
+              <Toggle
+                label={tweak.name}
                 checked={selected.has(tweak.name)}
-                onChange={(e) => {
+                onChange={(checked) => {
                   const next = new Set(selected);
-                  if (e.target.checked) next.add(tweak.name);
+                  if (checked) next.add(tweak.name);
                   else next.delete(tweak.name);
                   onChange([...next]);
                 }}
               />
-              {tweak.name}
-            </label>
+            </div>
           ))}
         </fieldset>
       );

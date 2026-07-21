@@ -4,11 +4,13 @@ import { createJob, fetchJobStatus, fetchSettingsSchema } from "./api.js";
 import { SettingsForm, type SettingsValues } from "./components/SettingsForm.js";
 import { RomUpload } from "./components/RomUpload.js";
 import { JobStatusPanel } from "./components/JobStatusPanel.js";
+import { ScrambleText } from "./components/ScrambleText.js";
 
 export function App() {
   const [schema, setSchema] = useState<SettingsSchema | null>(null);
   const [schemaError, setSchemaError] = useState<string | null>(null);
   const [settingsValues, setSettingsValues] = useState<SettingsValues>({});
+  const [settingsFilter, setSettingsFilter] = useState("");
 
   const [gameTier, setGameTier] = useState<GameTier>("handheld");
   const [romFile, setRomFile] = useState<File | null>(null);
@@ -80,58 +82,93 @@ export function App() {
 
   return (
     <main className="app">
-      <h1>Pokemon Randomizer</h1>
-      <p className="disclaimer">
-        Upload your own legally-owned ROM. Files are processed and stored temporarily and deleted automatically —
-        nothing is retained or shared. This site does not distribute any game files. Built on the open-source{" "}
-        <a href="https://github.com/Ajarmar/universal-pokemon-randomizer-zx" target="_blank" rel="noreferrer">
-          Universal Pokemon Randomizer ZX
-        </a>{" "}
-        (GPL-3.0).
-      </p>
+      <header className="hero">
+        <span className="hero-badge">TRAINER TOOL</span>
+        <h1 className="hero-title">
+          <ScrambleText text="POKEMON RANDOMIZER" />
+        </h1>
+        <p className="hero-tagline">
+          Upload your own ROM, configure however much of the {schema ? schema.fields.length : "~150"}-option randomizer
+          you want, and get a randomized ROM back.
+        </p>
+        <p className="hero-disclaimer">
+          <strong>Bring your own legally-owned ROM.</strong> Files are processed and deleted automatically — nothing
+          is retained or shared, and this site does not distribute any game files. Built on the open-source{" "}
+          <a href="https://github.com/Ajarmar/universal-pokemon-randomizer-zx" target="_blank" rel="noreferrer">
+            Universal Pokemon Randomizer ZX
+          </a>{" "}
+          (GPL-3.0).
+        </p>
+      </header>
 
       {job ? (
         <JobStatusPanel job={job} />
       ) : (
         <form onSubmit={handleSubmit}>
-          <RomUpload
-            gameTier={gameTier}
-            onGameTierChange={setGameTier}
-            romFile={romFile}
-            onRomFileChange={setRomFile}
-            updateFile={updateFile}
-            onUpdateFileChange={setUpdateFile}
-          />
+          <section className="panel">
+            <h2 className="panel-title">Cartridge</h2>
+            <RomUpload
+              gameTier={gameTier}
+              onGameTierChange={setGameTier}
+              romFile={romFile}
+              onRomFileChange={setRomFile}
+              updateFile={updateFile}
+              onUpdateFileChange={setUpdateFile}
+            />
+          </section>
 
-          {schemaError ? <p className="error">Failed to load settings options: {schemaError}</p> : null}
-          {schema ? (
-            <SettingsForm schema={schema} values={settingsValues} onChange={setSettingsValues} />
-          ) : !schemaError ? (
-            <p>Loading settings options…</p>
-          ) : null}
+          <section className="panel">
+            <h2 className="panel-title">Randomization settings</h2>
+            {schemaError ? <p className="error">Failed to load settings options: {schemaError}</p> : null}
+            {schema ? (
+              <>
+                <input
+                  className="settings-search"
+                  type="text"
+                  placeholder="Search settings (e.g. trainers, wild, starters)…"
+                  value={settingsFilter}
+                  onChange={(e) => setSettingsFilter(e.target.value)}
+                />
+                <p className="settings-meta">
+                  {schema.fields.length} settings from Universal Pokemon Randomizer ZX {schema.sourceTag}
+                </p>
+                <SettingsForm schema={schema} values={settingsValues} onChange={setSettingsValues} filter={settingsFilter} />
+              </>
+            ) : !schemaError ? (
+              <p>Loading settings options…</p>
+            ) : null}
+          </section>
 
-          <label className="field field-boolean">
-            <input type="checkbox" checked={generateLog} onChange={(e) => setGenerateLog(e.target.checked)} />
-            Generate a log file
-          </label>
-
-          {gameTier === "3ds" ? (
-            <label className="field field-boolean">
-              <input type="checkbox" checked={saveAsDirectory} onChange={(e) => setSaveAsDirectory(e.target.checked)} />
-              Save as LayeredFS directory (auto-enabled if you supply an update file)
+          <section className="panel">
+            <h2 className="panel-title">Output</h2>
+            <label className="toggle">
+              <input type="checkbox" checked={generateLog} onChange={(e) => setGenerateLog(e.target.checked)} />
+              <span className="toggle-track" aria-hidden="true" />
+              Generate a log file
             </label>
-          ) : null}
 
-          <label className="field field-boolean">
-            <input type="checkbox" checked={acceptedTos} onChange={(e) => setAcceptedTos(e.target.checked)} />
-            I own a legal copy of this game and understand this file will be processed and deleted automatically.
-          </label>
+            {gameTier === "3ds" ? (
+              <label className="toggle" style={{ marginTop: "0.6rem" }}>
+                <input type="checkbox" checked={saveAsDirectory} onChange={(e) => setSaveAsDirectory(e.target.checked)} />
+                <span className="toggle-track" aria-hidden="true" />
+                Save as LayeredFS directory (auto-enabled if you supply an update file)
+              </label>
+            ) : null}
 
-          {submitError ? <p className="error">{submitError}</p> : null}
+            <label className="toggle tos-field" style={{ marginTop: "1rem" }}>
+              <input type="checkbox" checked={acceptedTos} onChange={(e) => setAcceptedTos(e.target.checked)} />
+              <span className="toggle-track" aria-hidden="true" />
+              I own a legal copy of this game and understand this file will be processed and deleted automatically.
+            </label>
 
-          <button type="submit" disabled={submitting || !schema}>
-            {submitting ? "Submitting…" : "Randomize"}
-          </button>
+            {submitError ? <p className="error">{submitError}</p> : null}
+
+            <div style={{ marginTop: "1.25rem" }}>
+              <button type="submit" disabled={submitting || !schema}>
+                {submitting ? "Submitting…" : "Randomize →"}
+              </button>
+            </div>
+          </section>
         </form>
       )}
     </main>
