@@ -7,6 +7,8 @@ options, and download a randomized ROM — all generations, Gen 1 through 7
 or the desktop app's "Make Preset") to prefill the form, and save your
 current selections back out as one.
 
+![Demo of the settings form](docs/media/demo.gif)
+
 We don't fork or reimplement the randomizer. We vendor the official,
 unmodified release jar and drive it through its existing headless CLI mode.
 The web form's ~150 settings are extracted from the real `Settings` class
