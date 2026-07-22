@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 // Reads settings-schema.json (extracted from the vendored randomizer's
-// Settings.java — see docs/superpowers/specs) and emits
-// src/com/pkrandomizerweb/SettingsBuilder.java: explicit, compile-time-typed
-// calls into the real Settings class, one per field. Regenerate this
-// whenever settings-schema.json changes (e.g. after bumping the vendored
-// randomizer version): `node generate-shim.mjs`.
+// Settings.java — see docs/superpowers/specs) and emits two classes under
+// src/com/pkrandomizerweb/: explicit, compile-time-typed calls into the
+// real Settings class, one per field, in both directions:
+//   - SettingsBuilder: JSON -> Settings -> binary .rnqs (used by job processing
+//     and the "save current form as a file" export endpoint)
+//   - SettingsReader: binary .rnqs -> Settings -> JSON (used by the "load an
+//     existing settings file into the form" import endpoint)
+// Regenerate whenever settings-schema.json changes (e.g. after bumping the
+// vendored randomizer version): `node generate-shim.mjs`.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,7 +28,17 @@ function isVarargsOneHot(field) {
   return field.type === "enum" && typeof field.notes === "string" && VARARGS_MARKER.test(field.notes);
 }
 
-function emitField(field) {
+// Settings.java follows plain Java bean conventions: isX() for booleans,
+// getX() for everything else — including enum-typed fields whose *setter*
+// takes one-hot varargs booleans, which still expose a normal getX()
+// returning the resolved enum. Verified against the real jar (see
+// java-shim/test/com/pkrandomizerweb/RoundTripCheck.java).
+function getterName(field) {
+  const base = field.setter.slice(3); // strip "set"
+  return field.type === "boolean" ? `is${base}` : `get${base}`;
+}
+
+function emitBuilderField(field) {
   const lines = [];
   switch (field.type) {
     case "boolean":
@@ -102,16 +116,83 @@ function emitField(field) {
   return lines.map((l) => `        ${l}`).join("\n");
 }
 
-const fieldBlocks = schema.fields.map((f) => `        // ${f.name}${f.notes ? " -- " + f.notes.split("\n")[0].slice(0, 100) : ""}\n${emitField(f)}`).join("\n\n");
+// Write-only convenience setters that fan out to other fields' real state
+// instead of storing their own — no getter exists, so they're skipped when
+// reading a settings file back out. (blockBrokenMoves sets
+// blockBrokenMovesetMoves/blockBrokenTMMoves/blockBrokenTutorMoves, each of
+// which already gets its own entry in the dump.)
+const NO_GETTER_FIELDS = new Set(["blockBrokenMoves"]);
 
-const javaSource = `package com.pkrandomizerweb;
+function emitReaderField(field) {
+  if (NO_GETTER_FIELDS.has(field.name)) {
+    return `        // ${field.name} intentionally skipped — write-only convenience setter, no getter (see NO_GETTER_FIELDS)`;
+  }
+  const getter = getterName(field);
+  const lines = [];
+  switch (field.type) {
+    case "boolean":
+    case "int":
+    case "string":
+      lines.push(`json.put("${field.name}", settings.${getter}());`);
+      break;
+
+    case "intArray":
+      lines.push(`{`);
+      lines.push(`    int[] ${field.name}Vals = settings.${getter}();`);
+      lines.push(`    org.json.JSONArray ${field.name}Arr = new org.json.JSONArray();`);
+      lines.push(`    for (int v : ${field.name}Vals) ${field.name}Arr.put(v);`);
+      lines.push(`    json.put("${field.name}", ${field.name}Arr);`);
+      lines.push(`}`);
+      break;
+
+    case "enum":
+      lines.push(`json.put("${field.name}", settings.${getter}().name());`);
+      break;
+
+    case "genRestrictions": {
+      lines.push(`{`);
+      lines.push(`    GenRestrictions gr = settings.${getter}();`);
+      lines.push(`    org.json.JSONObject grJson = new org.json.JSONObject();`);
+      for (const sub of schema.genRestrictions.fields) {
+        lines.push(`    grJson.put("${sub.name}", gr.${sub.name});`);
+      }
+      lines.push(`    json.put("${field.name}", grJson);`);
+      lines.push(`}`);
+      break;
+    }
+
+    case "miscTweaksBitmask": {
+      lines.push(`{`);
+      lines.push(`    int bits = settings.${getter}();`);
+      lines.push(`    org.json.JSONArray tweaksArr = new org.json.JSONArray();`);
+      for (const tweak of schema.miscTweaks) {
+        lines.push(`    if ((bits & ${tweak.bitValue}) != 0) tweaksArr.put("${tweak.name}");`);
+      }
+      lines.push(`    json.put("${field.name}", tweaksArr);`);
+      lines.push(`}`);
+      break;
+    }
+
+    default:
+      lines.push(`// TODO: unhandled field type "${field.type}" for ${field.name}`);
+  }
+  return lines.map((l) => `        ${l}`).join("\n");
+}
+
+function fieldComment(f) {
+  return `        // ${f.name}${f.notes ? " -- " + f.notes.split("\n")[0].slice(0, 100) : ""}`;
+}
+
+const builderFieldBlocks = schema.fields.map((f) => `${fieldComment(f)}\n${emitBuilderField(f)}`).join("\n\n");
+const readerFieldBlocks = schema.fields.map((f) => `${fieldComment(f)}\n${emitReaderField(f)}`).join("\n\n");
+
+const builderSource = `package com.pkrandomizerweb;
 
 import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -160,12 +241,65 @@ public class SettingsBuilder {
     }
 
     private static void apply(Settings settings, JSONObject json) {
-${fieldBlocks}
+${builderFieldBlocks}
+    }
+}
+`;
+
+const readerSource = `package com.pkrandomizerweb;
+
+import com.dabomstew.pkrandom.Settings;
+import com.dabomstew.pkrandom.pokemon.GenRestrictions;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+/**
+ * Generated by java-shim/generate-shim.mjs from settings-schema.json — do
+ * not hand-edit. The inverse of {@link SettingsBuilder}: reads an existing
+ * binary .rnqs settings file via the real {@link Settings#read(FileInputStream)}
+ * (the same format produced by the desktop app's "Make Preset" / by our own
+ * SettingsBuilder) and prints it as JSON shaped by settings-schema.json, so
+ * the web form can be prefilled from an uploaded settings file.
+ *
+ * Usage: java -cp PokeRandoZX.jar:settings-shim.jar com.pkrandomizerweb.SettingsReader <input.rnqs>
+ * Prints the JSON payload to stdout.
+ */
+public class SettingsReader {
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.err.println("Usage: SettingsReader <input.rnqs>");
+            System.exit(1);
+        }
+        String inputSettingsPath = args[0];
+
+        try (FileInputStream in = new FileInputStream(new File(inputSettingsPath))) {
+            Settings settings = Settings.read(in);
+            JSONObject json = new JSONObject();
+            dump(settings, json);
+            System.out.println(json.toString());
+        } catch (IOException e) {
+            System.err.println("ERROR: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        } catch (RuntimeException e) {
+            System.err.println("ERROR: invalid or unreadable settings file: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    private static void dump(Settings settings, JSONObject json) {
+${readerFieldBlocks}
     }
 }
 `;
 
 const outDir = path.join(here, "src", "com", "pkrandomizerweb");
 fs.mkdirSync(outDir, { recursive: true });
-fs.writeFileSync(path.join(outDir, "SettingsBuilder.java"), javaSource, "utf8");
-console.log(`Wrote ${path.join(outDir, "SettingsBuilder.java")} (${schema.fields.length} fields)`);
+fs.writeFileSync(path.join(outDir, "SettingsBuilder.java"), builderSource, "utf8");
+fs.writeFileSync(path.join(outDir, "SettingsReader.java"), readerSource, "utf8");
+console.log(`Wrote SettingsBuilder.java and SettingsReader.java (${schema.fields.length} fields each)`);

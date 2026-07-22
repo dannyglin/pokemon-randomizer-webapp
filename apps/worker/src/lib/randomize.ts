@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { config, JobStore, type JobRecord } from "@pokemon-randomizer/shared";
-import { runProcess } from "./runProcess.js";
+import { config, JobStore, type JobRecord, runProcess } from "@pokemon-randomizer/shared";
 import { zipDirectory } from "./zipDirectory.js";
 import { jobDir } from "./paths.js";
 

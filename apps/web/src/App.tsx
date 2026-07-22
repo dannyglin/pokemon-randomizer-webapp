@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { GameTier, JobStatusResponse, SettingsSchema } from "@pokemon-randomizer/shared";
-import { createJob, fetchJobStatus, fetchSettingsSchema } from "./api.js";
+import { createJob, exportSettingsFile, fetchJobStatus, fetchSettingsSchema, importSettingsFile } from "./api.js";
 import { SettingsForm, type SettingsValues } from "./components/SettingsForm.js";
 import { RomUpload } from "./components/RomUpload.js";
 import { JobStatusPanel } from "./components/JobStatusPanel.js";
@@ -23,6 +23,11 @@ export function App() {
   const [submitting, setSubmitting] = useState(false);
   const [job, setJob] = useState<JobStatusResponse | null>(null);
   const pollRef = useRef<number | null>(null);
+
+  const [settingsFileError, setSettingsFileError] = useState<string | null>(null);
+  const [importingSettings, setImportingSettings] = useState(false);
+  const [exportingSettings, setExportingSettings] = useState(false);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     fetchSettingsSchema()
@@ -80,6 +85,32 @@ export function App() {
     }
   };
 
+  const handleImportSettingsFile = async (file: File) => {
+    setSettingsFileError(null);
+    setImportingSettings(true);
+    try {
+      const values = await importSettingsFile(file);
+      setSettingsValues(values);
+    } catch (err) {
+      setSettingsFileError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setImportingSettings(false);
+      if (importInputRef.current) importInputRef.current.value = "";
+    }
+  };
+
+  const handleExportSettingsFile = async () => {
+    setSettingsFileError(null);
+    setExportingSettings(true);
+    try {
+      await exportSettingsFile(settingsValues);
+    } catch (err) {
+      setSettingsFileError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setExportingSettings(false);
+    }
+  };
+
   return (
     <main className="app">
       <header className="hero">
@@ -118,7 +149,38 @@ export function App() {
           </section>
 
           <section className="panel">
-            <h2 className="panel-title">Randomization settings</h2>
+            <div className="panel-header-row">
+              <h2 className="panel-title">Randomization settings</h2>
+              <div className="settings-file-actions">
+                <button
+                  type="button"
+                  className="button ghost small"
+                  onClick={() => importInputRef.current?.click()}
+                  disabled={importingSettings}
+                >
+                  {importingSettings ? "Loading…" : "Load settings file"}
+                </button>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept=".rnqs"
+                  className="visually-hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleImportSettingsFile(file);
+                  }}
+                />
+                <button
+                  type="button"
+                  className="button ghost small"
+                  onClick={() => void handleExportSettingsFile()}
+                  disabled={exportingSettings}
+                >
+                  {exportingSettings ? "Saving…" : "Save settings"}
+                </button>
+              </div>
+            </div>
+            {settingsFileError ? <p className="error">{settingsFileError}</p> : null}
             {schemaError ? <p className="error">Failed to load settings options: {schemaError}</p> : null}
             {schema ? (
               <>

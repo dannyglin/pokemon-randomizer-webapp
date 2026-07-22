@@ -3,7 +3,9 @@
 A web frontend for [Universal Pokemon Randomizer ZX](https://github.com/Ajarmar/universal-pokemon-randomizer-zx)
 (GPL-3.0). Upload your own legally-owned ROM, configure randomization
 options, and download a randomized ROM — all generations, Gen 1 through 7
-(including 3DS).
+(including 3DS). You can also load an existing settings file (from this app
+or the desktop app's "Make Preset") to prefill the form, and save your
+current selections back out as one.
 
 We don't fork or reimplement the randomizer. We vendor the official,
 unmodified release jar and drive it through its existing headless CLI mode.

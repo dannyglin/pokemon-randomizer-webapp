@@ -156,6 +156,36 @@ a {
   margin: 0 0 1rem;
 }
 
+.panel-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.panel-header-row .panel-title {
+  margin: 0;
+}
+
+.settings-file-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- ROM upload / cartridge slot ---------- */
 
 .rom-upload {
@@ -453,6 +483,29 @@ button[type="submit"]:disabled {
 
 .button.secondary:hover {
   border-color: var(--circuit);
+}
+
+.button.ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--ink-line);
+}
+
+.button.ghost:hover {
+  color: var(--text);
+  border-color: var(--circuit);
+  background: transparent;
+}
+
+.button.small {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.72rem;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ---------- Job status: terminal log ---------- */
