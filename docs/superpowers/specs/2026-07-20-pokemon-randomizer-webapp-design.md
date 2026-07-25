@@ -1,7 +1,15 @@
 # Pokemon Randomizer Web App — Design Spec
 
 Date: 2026-07-20
-Status: Approved for implementation
+Status: Implemented, with one deliberate scope reduction since — see below.
+
+> **2026-07-25 update**: 3DS support (Gen 6/7, §5) was descoped after
+> implementation so the whole stack fits on a free 1GB-RAM VM (e.g. GCP's
+> `e2-micro` Always Free tier) for zero-cost public hosting. The app now
+> only supports Gen 1-5 (`.gb`/`.gbc`/`.gba`/`.nds`). Everything else in
+> this spec (schema-driven settings, the Java shim approach, job pipeline,
+> settings load/save) is implemented as described. See README.md's "Known
+> follow-ups" for what reintroducing 3DS would take.
 
 ## 1. Summary
 

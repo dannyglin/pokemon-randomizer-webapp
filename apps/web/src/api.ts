@@ -1,4 +1,4 @@
-import type { GameTier, JobStatusResponse, SettingsSchema } from "@pokemon-randomizer/shared";
+import type { JobStatusResponse, SettingsSchema } from "@pokemon-randomizer/shared";
 
 export async function fetchSettingsSchema(): Promise<SettingsSchema> {
   const res = await fetch("/api/settings-schema");
@@ -7,24 +7,18 @@ export async function fetchSettingsSchema(): Promise<SettingsSchema> {
 }
 
 export interface CreateJobParams {
-  gameTier: GameTier;
   settings: Record<string, unknown>;
   generateLog: boolean;
-  saveAsDirectory: boolean;
   acceptedTos: boolean;
   romFile: File;
-  updateFile?: File;
 }
 
 export async function createJob(params: CreateJobParams): Promise<JobStatusResponse> {
   const form = new FormData();
-  form.set("gameTier", params.gameTier);
   form.set("settings", JSON.stringify(params.settings));
   form.set("generateLog", String(params.generateLog));
-  form.set("saveAsDirectory", String(params.saveAsDirectory));
   form.set("acceptedTos", String(params.acceptedTos));
   form.set("rom", params.romFile);
-  if (params.updateFile) form.set("updateFile", params.updateFile);
 
   const res = await fetch("/api/jobs", { method: "POST", body: form });
   const body = await res.json();

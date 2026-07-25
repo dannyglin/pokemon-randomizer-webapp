@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
     cb(null, jobDir(jobId));
   },
   filename: (_req, file, cb) => {
-    // fieldname is either "rom" or "updateFile" — fixed names the worker knows to look for.
+    // fieldname is "rom" — a fixed name the worker knows to look for.
     const ext = path.extname(file.originalname);
     cb(null, `${file.fieldname}${ext}`);
   },
@@ -36,8 +36,6 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage,
   limits: {
-    // Enforced loosely here at the larger (3DS) tier; the route handler
-    // re-checks the tier-specific limit once it knows gameTier from the body.
-    fileSize: config.maxUploadBytesThreeDs,
+    fileSize: config.maxUploadBytes,
   },
 });

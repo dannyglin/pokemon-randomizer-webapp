@@ -1,27 +1,24 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { config, JobStore, type JobRecord, runProcess } from "@pokemon-randomizer/shared";
-import { zipDirectory } from "./zipDirectory.js";
 import { jobDir } from "./paths.js";
 
 export interface RandomizeJobData {
   jobId: string;
   generateLog: boolean;
-  saveAsDirectory: boolean;
 }
 
 /**
  * Finds whatever the randomizer actually produced. CliRandomizer corrects
- * the output extension itself (or writes a directory when saving as
- * LayeredFS), so we don't trust the exact "-o" path we passed — we scan for
- * anything named "output*" that isn't the settings/input files.
+ * the output extension itself, so we don't trust the exact "-o" path we
+ * passed — we scan for anything named "output*" that isn't the log.
  */
-async function findProducedOutput(dir: string): Promise<{ outputEntry: string; isDirectory: boolean } | null> {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (!entry.name.startsWith("output")) continue;
-    if (entry.name.endsWith(".log")) continue;
-    return { outputEntry: entry.name, isDirectory: entry.isDirectory() };
+async function findProducedOutput(dir: string): Promise<string | null> {
+  const entries = await fs.readdir(dir);
+  for (const name of entries) {
+    if (!name.startsWith("output")) continue;
+    if (name.endsWith(".log")) continue;
+    return name;
   }
   return null;
 }
@@ -33,7 +30,7 @@ async function findLogFile(dir: string): Promise<string | null> {
 }
 
 export async function processRandomizeJob(data: RandomizeJobData, jobStore: JobStore): Promise<void> {
-  const { jobId, generateLog, saveAsDirectory } = data;
+  const { jobId, generateLog } = data;
   const dir = jobDir(jobId);
 
   const record = await jobStore.get(jobId);
@@ -44,7 +41,6 @@ export async function processRandomizeJob(data: RandomizeJobData, jobStore: JobS
   await jobStore.update(jobId, { status: "processing" });
 
   const inputRomPath = path.join(dir, record.files.inputRom);
-  const updateFilePath = record.files.updateFile ? path.join(dir, record.files.updateFile) : undefined;
   const settingsJsonPath = path.join(dir, "settings.json");
   const settingsBinPath = path.join(dir, "settings.rnqs");
   const outputBasePath = path.join(dir, "output");
@@ -62,8 +58,6 @@ export async function processRandomizeJob(data: RandomizeJobData, jobStore: JobS
     }
 
     const cliArgs = ["-jar", config.randomizerJarPath, "cli", "-s", settingsBinPath, "-i", inputRomPath, "-o", outputBasePath];
-    if (saveAsDirectory) cliArgs.push("-d");
-    if (updateFilePath) cliArgs.push("-u", updateFilePath);
     if (generateLog) cliArgs.push("-l");
 
     const cliResult = await runProcess("java", [`-Xmx${config.javaHeapMb}M`, ...cliArgs], config.jobTimeoutMs);
@@ -77,27 +71,18 @@ export async function processRandomizeJob(data: RandomizeJobData, jobStore: JobS
       return;
     }
 
-    const produced = await findProducedOutput(dir);
-    if (!produced) {
+    const outputFileName = await findProducedOutput(dir);
+    if (!outputFileName) {
       await failJob(jobStore, jobId, "Randomizer reported success but produced no output file.");
       return;
     }
 
-    let outputFileName = produced.outputEntry;
-    if (produced.isDirectory) {
-      const zipName = `${produced.outputEntry}.zip`;
-      await zipDirectory(path.join(dir, produced.outputEntry), path.join(dir, zipName));
-      await fs.rm(path.join(dir, produced.outputEntry), { recursive: true, force: true });
-      outputFileName = zipName;
-    }
-
     const logFileName = generateLog ? await findLogFile(dir) : null;
 
-    // Reduce how long the original (and any updated) copyrighted ROM bytes
-    // sit on disk — keep only the settings + output + log until the TTL
-    // sweep clears the whole job directory.
+    // Reduce how long the original copyrighted ROM bytes sit on disk — keep
+    // only the settings + output + log until the TTL sweep clears the whole
+    // job directory.
     await fs.rm(inputRomPath, { force: true });
-    if (updateFilePath) await fs.rm(updateFilePath, { force: true });
 
     const updated: Partial<JobRecord> = {
       status: "complete",

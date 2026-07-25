@@ -4,6 +4,10 @@ services:
     restart: unless-stopped
     volumes:
       - redis-data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 50m
 
   api:
     build:
@@ -17,11 +21,14 @@ services:
       - JOB_DATA_DIR=/data/jobs
       - PORT=3001
       - JOB_RETENTION_HOURS=${JOB_RETENTION_HOURS:-24}
-      - MAX_UPLOAD_BYTES_HANDHELD=${MAX_UPLOAD_BYTES_HANDHELD:-67108864}
-      - MAX_UPLOAD_BYTES_3DS=${MAX_UPLOAD_BYTES_3DS:-4294967296}
+      - MAX_UPLOAD_BYTES=${MAX_UPLOAD_BYTES:-67108864}
       - RATE_LIMIT_JOBS_PER_HOUR=${RATE_LIMIT_JOBS_PER_HOUR:-5}
     volumes:
       - job-data:/data/jobs
+    deploy:
+      resources:
+        limits:
+          memory: ${API_MEMORY_LIMIT:-200m}
 
   worker:
     build:
@@ -34,9 +41,9 @@ services:
       - REDIS_URL=redis://redis:6379
       - JOB_DATA_DIR=/data/jobs
       - JOB_RETENTION_HOURS=${JOB_RETENTION_HOURS:-24}
-      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-2}
-      - JOB_TIMEOUT_MS=${JOB_TIMEOUT_MS:-900000}
-      - JAVA_HEAP_MB=${JAVA_HEAP_MB:-4096}
+      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-1}
+      - JOB_TIMEOUT_MS=${JOB_TIMEOUT_MS:-600000}
+      - JAVA_HEAP_MB=${JAVA_HEAP_MB:-384}
       - RANDOMIZER_JAR_PATH=/opt/randomizer/PokeRandoZX.jar
       - SETTINGS_SHIM_JAR_PATH=/opt/randomizer/settings-shim.jar
     volumes:
@@ -44,7 +51,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: ${WORKER_MEMORY_LIMIT:-6g}
+          memory: ${WORKER_MEMORY_LIMIT:-600m}
 
   web:
     build:
@@ -55,6 +62,10 @@ services:
       - api
     ports:
       - "${WEB_PORT:-8080}:80"
+    deploy:
+      resources:
+        limits:
+          memory: 50m
 
 volumes:
   redis-data:

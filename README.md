@@ -1,11 +1,16 @@
 # Pokemon Randomizer Web App
 
 A web frontend for [Universal Pokemon Randomizer ZX](https://github.com/Ajarmar/universal-pokemon-randomizer-zx)
-(GPL-3.0). Upload your own legally-owned ROM, configure randomization
-options, and download a randomized ROM — all generations, Gen 1 through 7
-(including 3DS). You can also load an existing settings file (from this app
-or the desktop app's "Make Preset") to prefill the form, and save your
-current selections back out as one.
+(GPL-3.0). Upload your own legally-owned Gen 1-5 ROM (`.gb`/`.gbc`/`.gba`/`.nds`),
+configure randomization options, and download a randomized ROM. You can also
+load an existing settings file (from this app or the desktop app's "Make
+Preset") to prefill the form, and save your current selections back out as
+one.
+
+Scoped to Gen 1-5 (no 3DS) deliberately, so the whole stack fits comfortably
+on a free-tier 1GB-RAM VM — see "Hosting it publicly for free" below. The
+original design covered all generations including 3DS; see the design spec
+for that fuller scope if you want to reintroduce it on a beefier host.
 
 ![Demo of the settings form](docs/media/demo.gif)
 
@@ -57,10 +62,10 @@ normally.
 cp .env.example .env
 ```
 
-Defaults are sane for personal/small-scale use (24h file retention, 5
-jobs/hour per IP, 2 concurrent randomization jobs). Adjust `.env` if you
-want different limits — see the comments in `.env.example` for what each
-one does.
+Defaults are deliberately tight — sized to fit the whole stack on a 1GB-RAM
+free-tier VM (24h file retention, 5 jobs/hour per IP, 1 randomization job at
+a time, 384MB JVM heap). Adjust `.env` if you're on a bigger host and want
+more headroom — see the comments in `.env.example` for what each one does.
 
 ### 3. Build and run
 
@@ -97,14 +102,17 @@ npm run dev:web      # apps/web, proxies /api to :3001
 ### Hosting it publicly for free
 
 Docker Compose on your own machine only serves `localhost`. To make it
-reachable from the internet without paying for hosting:
+reachable from the internet without paying for hosting, this app is scoped
+(Gen 1-5 only, 384MB JVM heap, single concurrent job) specifically so the
+whole stack fits on a **free-tier 1GB-RAM VM** — see below for the exact
+steps on Google Cloud's `e2-micro` Always Free tier.
 
+Other genuinely-free options:
 - **Cloudflare Tunnel**: free, gives you a public URL while it keeps
-  running on your machine (`cloudflared tunnel --url http://localhost:8080`
+  running on your own machine (`cloudflared tunnel --url http://localhost:8080`
   after a one-time `cloudflared` setup).
-- **Oracle Cloud "Always Free" tier**: a real always-on VM, free
-  indefinitely (not a trial) — run the same `docker compose up` there
-  instead of locally.
+- **Oracle Cloud "Always Free" tier**: real always-on VMs, free
+  indefinitely (not a trial).
 
 Either way, you're now running a public service that processes other
 people's ROM uploads — re-read the Legal / privacy section below and make
@@ -155,6 +163,10 @@ docker-compose.yml
 
 ## Known follow-ups
 
+- 3DS support (Gen 6/7) was descoped to fit the app on a free 1GB-RAM host —
+  the original design spec covers it in full; reintroducing it means
+  restoring the `-d`/`-u` CLI flags, the update-file upload, and raising
+  `JAVA_HEAP_MB` back toward the tool's recommended 4096 on a bigger host.
 - Per-field default values: the schema captures each field's *type*, but
   not Settings' own default value for fields the user never touches — the
   shim currently falls back to a type-appropriate zero value (`false` / `0`

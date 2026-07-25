@@ -12,20 +12,20 @@ export const config = {
   /** Hours a completed (or failed) job's files remain downloadable before the sweep deletes them. */
   jobRetentionHours: envInt("JOB_RETENTION_HOURS", 24),
 
-  maxUploadBytesHandheld: envInt("MAX_UPLOAD_BYTES_HANDHELD", 64 * 1024 * 1024), // 64MB
-  maxUploadBytesThreeDs: envInt("MAX_UPLOAD_BYTES_3DS", 4 * 1024 * 1024 * 1024), // 4GB (decrypted 3DS ROMs are large single files)
+  /** Gen 1-5 ROMs (.gb/.gbc/.gba/.nds) are small; NDS carts top out well under this. */
+  maxUploadBytes: envInt("MAX_UPLOAD_BYTES", 64 * 1024 * 1024), // 64MB
 
   /** Max concurrent randomization subprocesses the worker will run at once. */
-  workerConcurrency: envInt("WORKER_CONCURRENCY", 2),
+  workerConcurrency: envInt("WORKER_CONCURRENCY", 1),
 
   /** Hard wall-clock timeout for a single randomization subprocess. */
-  jobTimeoutMs: envInt("JOB_TIMEOUT_MS", 15 * 60 * 1000), // 15 min
+  jobTimeoutMs: envInt("JOB_TIMEOUT_MS", 10 * 60 * 1000), // 10 min
 
   /** Per-IP job creation limit. */
   rateLimitJobsPerHour: envInt("RATE_LIMIT_JOBS_PER_HOUR", 5),
 
-  /** JVM heap for the randomizer subprocess (it recommends 4096M for 3DS games). */
-  javaHeapMb: envInt("JAVA_HEAP_MB", 4096),
+  /** JVM heap for the randomizer subprocess. Gen 1-5 ROMs need far less than the 4096M the tool recommends for 3DS games. */
+  javaHeapMb: envInt("JAVA_HEAP_MB", 512),
 
   randomizerJarPath: process.env.RANDOMIZER_JAR_PATH ?? "/opt/randomizer/PokeRandoZX.jar",
   settingsShimJarPath: process.env.SETTINGS_SHIM_JAR_PATH ?? "/opt/randomizer/settings-shim.jar",

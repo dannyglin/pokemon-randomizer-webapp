@@ -52,14 +52,14 @@ public class SettingsReader {
         {
             GenRestrictions gr = settings.getCurrentRestrictions();
             org.json.JSONObject grJson = new org.json.JSONObject();
-            grJson.put("allow_gen1", gr.allow_gen1);
-            grJson.put("allow_gen2", gr.allow_gen2);
-            grJson.put("allow_gen3", gr.allow_gen3);
-            grJson.put("allow_gen4", gr.allow_gen4);
-            grJson.put("allow_gen5", gr.allow_gen5);
-            grJson.put("allow_gen6", gr.allow_gen6);
-            grJson.put("allow_gen7", gr.allow_gen7);
-            grJson.put("allow_evolutionary_relatives", gr.allow_evolutionary_relatives);
+            grJson.put("allow_gen1", gr != null && gr.allow_gen1);
+            grJson.put("allow_gen2", gr != null && gr.allow_gen2);
+            grJson.put("allow_gen3", gr != null && gr.allow_gen3);
+            grJson.put("allow_gen4", gr != null && gr.allow_gen4);
+            grJson.put("allow_gen5", gr != null && gr.allow_gen5);
+            grJson.put("allow_gen6", gr != null && gr.allow_gen6);
+            grJson.put("allow_gen7", gr != null && gr.allow_gen7);
+            grJson.put("allow_evolutionary_relatives", gr != null && gr.allow_evolutionary_relatives);
             json.put("currentRestrictions", grJson);
         }
 

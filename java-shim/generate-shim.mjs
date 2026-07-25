@@ -150,11 +150,16 @@ function emitReaderField(field) {
       break;
 
     case "genRestrictions": {
+      // getCurrentRestrictions() is null after Settings.read() whenever the
+      // file was written with limitPokemon=false — the real format only
+      // persists GenRestrictions when it's actually in use, it's not a bug
+      // in the shim. Fall back to an all-false object so the form always
+      // gets a consistent shape either way.
       lines.push(`{`);
       lines.push(`    GenRestrictions gr = settings.${getter}();`);
       lines.push(`    org.json.JSONObject grJson = new org.json.JSONObject();`);
       for (const sub of schema.genRestrictions.fields) {
-        lines.push(`    grJson.put("${sub.name}", gr.${sub.name});`);
+        lines.push(`    grJson.put("${sub.name}", gr != null && gr.${sub.name});`);
       }
       lines.push(`    json.put("${field.name}", grJson);`);
       lines.push(`}`);

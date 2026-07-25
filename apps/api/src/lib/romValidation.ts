@@ -1,5 +1,4 @@
 import path from "node:path";
-import type { GameTier } from "@pokemon-randomizer/shared";
 
 /**
  * First 16 bytes of the Nintendo boot logo, which every legitimate GB/GBC/GBA
@@ -13,11 +12,7 @@ const NINTENDO_LOGO_PREFIX = Buffer.from([
   0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0c, 0x00, 0x0d,
 ]);
 
-const HANDHELD_EXTENSIONS = new Set([".gb", ".gbc", ".gba", ".nds"]);
-// CliRandomizer reads 3DS ROMs/updates as a single decrypted NCCH container
-// (.3ds or .cxi), parsed by byte offset — not a folder/zip. See
-// Abstract3DSRomHandler.getProductCodeFromFile.
-const THREE_DS_EXTENSIONS = new Set([".3ds", ".cxi"]);
+const SUPPORTED_EXTENSIONS = new Set([".gb", ".gbc", ".gba", ".nds"]);
 
 interface RomHeaderCheck {
   offset: number;
@@ -35,16 +30,10 @@ export interface ValidationResult {
   reason?: string;
 }
 
-export function validateExtension(fileName: string, tier: GameTier): ValidationResult {
+export function validateExtension(fileName: string): ValidationResult {
   const ext = path.extname(fileName).toLowerCase();
-  if (tier === "handheld") {
-    if (!HANDHELD_EXTENSIONS.has(ext)) {
-      return { ok: false, reason: `Unsupported handheld ROM extension "${ext}". Expected one of: ${[...HANDHELD_EXTENSIONS].join(", ")}` };
-    }
-  } else {
-    if (!THREE_DS_EXTENSIONS.has(ext)) {
-      return { ok: false, reason: `3DS ROM uploads must be a decrypted .3ds or .cxi file, got "${ext}"` };
-    }
+  if (!SUPPORTED_EXTENSIONS.has(ext)) {
+    return { ok: false, reason: `Unsupported ROM extension "${ext}". Expected one of: ${[...SUPPORTED_EXTENSIONS].join(", ")}` };
   }
   return { ok: true };
 }
@@ -52,7 +41,7 @@ export function validateExtension(fileName: string, tier: GameTier): ValidationR
 export function validateHandheldHeader(fileName: string, buffer: Buffer): ValidationResult {
   const ext = path.extname(fileName).toLowerCase();
   const check = HEADER_CHECKS_BY_EXTENSION[ext];
-  if (!check) return { ok: true }; // not a header we know how to check (e.g. zip)
+  if (!check) return { ok: true }; // not a header we know how to check
 
   if (buffer.length < check.offset + NINTENDO_LOGO_PREFIX.length) {
     return { ok: false, reason: "File is too small to be a valid ROM (truncated upload?)" };

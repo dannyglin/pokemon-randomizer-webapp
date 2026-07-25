@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { GameTier, JobStatusResponse, SettingsSchema } from "@pokemon-randomizer/shared";
+import type { JobStatusResponse, SettingsSchema } from "@pokemon-randomizer/shared";
 import { createJob, exportSettingsFile, fetchJobStatus, fetchSettingsSchema, importSettingsFile } from "./api.js";
 import { SettingsForm, type SettingsValues } from "./components/SettingsForm.js";
 import { RomUpload } from "./components/RomUpload.js";
@@ -12,11 +12,8 @@ export function App() {
   const [settingsValues, setSettingsValues] = useState<SettingsValues>({});
   const [settingsFilter, setSettingsFilter] = useState("");
 
-  const [gameTier, setGameTier] = useState<GameTier>("handheld");
   const [romFile, setRomFile] = useState<File | null>(null);
-  const [updateFile, setUpdateFile] = useState<File | null>(null);
   const [generateLog, setGenerateLog] = useState(true);
-  const [saveAsDirectory, setSaveAsDirectory] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(false);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -69,13 +66,10 @@ export function App() {
     setSubmitting(true);
     try {
       const created = await createJob({
-        gameTier,
         settings: settingsValues,
         generateLog,
-        saveAsDirectory,
         acceptedTos,
         romFile,
-        updateFile: updateFile ?? undefined,
       });
       setJob(created);
     } catch (err) {
@@ -119,8 +113,8 @@ export function App() {
           <ScrambleText text="POKEMON RANDOMIZER" />
         </h1>
         <p className="hero-tagline">
-          Upload your own ROM, configure however much of the {schema ? schema.fields.length : "~150"}-option randomizer
-          you want, and get a randomized ROM back.
+          Upload your own Gen 1-5 ROM, configure however much of the {schema ? schema.fields.length : "~150"}-option
+          randomizer you want, and get a randomized ROM back.
         </p>
         <p className="hero-disclaimer">
           <strong>Bring your own legally-owned ROM.</strong> Files are processed and deleted automatically — nothing
@@ -138,14 +132,7 @@ export function App() {
         <form onSubmit={handleSubmit}>
           <section className="panel">
             <h2 className="panel-title">Cartridge</h2>
-            <RomUpload
-              gameTier={gameTier}
-              onGameTierChange={setGameTier}
-              romFile={romFile}
-              onRomFileChange={setRomFile}
-              updateFile={updateFile}
-              onUpdateFileChange={setUpdateFile}
-            />
+            <RomUpload romFile={romFile} onRomFileChange={setRomFile} />
           </section>
 
           <section className="panel">
@@ -208,14 +195,6 @@ export function App() {
               <span className="toggle-track" aria-hidden="true" />
               Generate a log file
             </label>
-
-            {gameTier === "3ds" ? (
-              <label className="toggle" style={{ marginTop: "0.6rem" }}>
-                <input type="checkbox" checked={saveAsDirectory} onChange={(e) => setSaveAsDirectory(e.target.checked)} />
-                <span className="toggle-track" aria-hidden="true" />
-                Save as LayeredFS directory (auto-enabled if you supply an update file)
-              </label>
-            ) : null}
 
             <label className="toggle tos-field" style={{ marginTop: "1rem" }}>
               <input type="checkbox" checked={acceptedTos} onChange={(e) => setAcceptedTos(e.target.checked)} />
