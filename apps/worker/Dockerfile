@@ -57,7 +57,15 @@ COPY --from=build /repo/apps/worker/dist ./apps/worker/dist
 COPY --from=build /repo/apps/worker/package.json ./apps/worker/package.json
 COPY --from=vendor /opt/randomizer /opt/randomizer
 
-RUN useradd --system --create-home randomizer
-USER randomizer
+# Deliberately root, matching apps/api/Dockerfile (which has no USER either)
+# — both containers write into the same shared job-data volume, and running
+# as different users broke that in production (worked under Docker Desktop
+# on Windows, whose Linux VM doesn't enforce the same UID-based permission
+# checks a real Linux host does — this shipped once as a non-root
+# "randomizer" user and failed with EACCES on GCP the moment a job actually
+# ran). Properly sandboxing this would mean an entrypoint that chowns the
+# volume as root then drops to a shared, explicit UID before exec — real
+# effort for a single-tenant self-hosted app, tracked as a follow-up rather
+# than done half-right here.
 
 CMD ["node", "apps/worker/dist/index.js"]
