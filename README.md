@@ -238,6 +238,11 @@ docker-compose.yml
 
 ## Known follow-ups
 
+- `api` and `worker` both run as root in their containers (see the comment
+  in `apps/worker/Dockerfile`) — they share the job-data volume, and a
+  non-root worker couldn't write to directories the root api created.
+  Proper fix is an entrypoint that chowns the volume then drops to a
+  shared, explicit UID before exec.
 - 3DS support (Gen 6/7) was descoped to fit the app on a free 1GB-RAM host —
   the original design spec covers it in full; reintroducing it means
   restoring the `-d`/`-u` CLI flags, the update-file upload, and raising
