@@ -103,20 +103,95 @@ npm run dev:web      # apps/web, proxies /api to :3001
 
 Docker Compose on your own machine only serves `localhost`. To make it
 reachable from the internet without paying for hosting, this app is scoped
-(Gen 1-5 only, 384MB JVM heap, single concurrent job) specifically so the
-whole stack fits on a **free-tier 1GB-RAM VM** — see below for the exact
-steps on Google Cloud's `e2-micro` Always Free tier.
+(Gen 1-5 only, 384MB JVM heap, single concurrent job, per-container memory
+limits) specifically so the whole stack fits on a **free-tier 1GB-RAM VM**.
 
-Other genuinely-free options:
+You're now running a public service that processes other people's ROM
+uploads — re-read the Legal / privacy section below and make sure the rate
+limits and retention window in `.env` fit that.
+
+#### Deploying to Google Cloud's `e2-micro` (Always Free)
+
+Google Cloud Shell (`console.cloud.google.com` → the `>_` icon, top right)
+is the easiest path — it's pre-authenticated with your Google account, so
+there's no local `gcloud` install/auth step. You'll need a GCP project with
+billing enabled first (a real card for identity verification, but nothing
+here exceeds the Always Free limits, so nothing gets charged) — set up a
+[Budget Alert](https://console.cloud.google.com/billing/budgets) (e.g. $1)
+as a backstop regardless.
+
+**1. Create the VM**, in Cloud Shell. These exact flags are what make it
+free-tier-eligible — machine type, region, and disk type/size all matter:
+
+```bash
+gcloud compute instances create my-free-instance \
+    --zone=us-central1-a \
+    --machine-type=e2-micro \
+    --boot-disk-type=pd-standard \
+    --boot-disk-size=30GB \
+    --image-family=debian-12 \
+    --image-project=debian-cloud
+```
+
+(`us-central1`, `us-west1`, and `us-east1` are the Always Free-eligible
+regions — pick one. Only one `e2-micro` instance is free per billing
+account.)
+
+**2. Open port 80** (SSH/22 is open by default already):
+
+```bash
+gcloud compute instances add-tags my-free-instance --zone=us-central1-a --tags=http-server
+gcloud compute firewall-rules create allow-http --allow=tcp:80 --target-tags=http-server --description="Allow HTTP"
+```
+
+**3. SSH in**, install Docker, add swap (a real safety net on 1GB RAM —
+without it, a memory spike gets a container OOM-killed instead of just
+paging to disk), clone the repo, and switch it to serve on port 80:
+
+```bash
+gcloud compute ssh my-free-instance --zone=us-central1-a
+```
+
+Once connected (prompt changes to something like `you@my-free-instance:~$`):
+
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER
+newgrp docker <<'EOF'
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+git clone https://github.com/dannyglin/pokemon-randomizer-webapp.git
+cd pokemon-randomizer-webapp
+cp .env.example .env
+sed -i 's/WEB_PORT=8080/WEB_PORT=80/' .env
+
+docker compose up -d --build
+EOF
+```
+
+The build step is slow on an `e2-micro`'s single shared vCPU (several
+minutes) — it's downloading base images plus the vendored randomizer jar,
+verified by checksum.
+
+**4. Find the public IP** and open it in a browser:
+
+```bash
+gcloud compute instances describe my-free-instance --zone=us-central1-a --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+```
+
+**Redeploying later** (after a `git push` to this repo): SSH back in,
+`cd pokemon-randomizer-webapp && git pull && docker compose up -d --build`.
+
+Other genuinely-free alternatives if you'd rather not use GCP:
 - **Cloudflare Tunnel**: free, gives you a public URL while it keeps
   running on your own machine (`cloudflared tunnel --url http://localhost:8080`
-  after a one-time `cloudflared` setup).
+  after a one-time `cloudflared` setup) — no cloud VM at all.
 - **Oracle Cloud "Always Free" tier**: real always-on VMs, free
-  indefinitely (not a trial).
-
-Either way, you're now running a public service that processes other
-people's ROM uploads — re-read the Legal / privacy section below and make
-sure the rate limits and retention window in `.env` fit that.
+  indefinitely (not a trial), similar setup shape to the above.
 
 ### Bumping the vendored randomizer version
 
