@@ -40,6 +40,24 @@ function sanitizeFileNameBase(originalName: string): string {
   return cleaned.length > 0 ? cleaned : "rom";
 }
 
+/**
+ * Reads only the first `maxBytes` of a file — every header offset we check
+ * (validateHandheldHeader) sits well within the first 512 bytes. Loading
+ * the whole file (previously `fs.readFile(romFile.path)`, up to 256MB) just
+ * to inspect 16 bytes was enough to OOM-kill the `api` container, which is
+ * memory-capped at 200MB in docker-compose.yml.
+ */
+async function readFileHeader(filePath: string, maxBytes = 512): Promise<Buffer> {
+  const handle = await fs.open(filePath, "r");
+  try {
+    const buf = Buffer.alloc(maxBytes);
+    const { bytesRead } = await handle.read(buf, 0, maxBytes, 0);
+    return buf.subarray(0, bytesRead);
+  } finally {
+    await handle.close();
+  }
+}
+
 const createJobBodySchema = z.object({
   settings: z.string().min(1), // JSON-encoded settings object, validated shape-wise by the worker/shim
   generateLog: z.enum(["true", "false"]).default("false"),
@@ -85,7 +103,7 @@ jobsRouter.post(
       return cleanupAndFail(400, `ROM exceeds the ${Math.round(config.maxUploadBytes / 1024 / 1024)}MB limit.`);
     }
 
-    const headerBuf = await fs.readFile(romFile.path);
+    const headerBuf = await readFileHeader(romFile.path);
     const headerCheck = validateHandheldHeader(romFile.originalname, headerBuf);
     if (!headerCheck.ok) {
       return cleanupAndFail(400, headerCheck.reason ?? "Invalid ROM file.");

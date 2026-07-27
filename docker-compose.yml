@@ -28,7 +28,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: ${API_MEMORY_LIMIT:-200m}
+          memory: ${API_MEMORY_LIMIT:-300m}
 
   worker:
     build:
