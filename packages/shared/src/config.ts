@@ -12,8 +12,13 @@ export const config = {
   /** Hours a completed (or failed) job's files remain downloadable before the sweep deletes them. */
   jobRetentionHours: envInt("JOB_RETENTION_HOURS", 24),
 
-  /** Gen 1-5 ROMs (.gb/.gbc/.gba/.nds) are small; NDS carts top out well under this. */
-  maxUploadBytes: envInt("MAX_UPLOAD_BYTES", 64 * 1024 * 1024), // 64MB
+  /**
+   * Gen 1-5 ROMs (.gb/.gbc/.gba/.nds). GB/GBC/GBA are a few MB at most, but
+   * NDS carts are much bigger than that — Gen 4 (HeartGold/SoulSilver,
+   * Platinum) dumps are ~64MB and Gen 5 (Black/White, Black2/White2) are
+   * ~128MB, both of which a too-low cap here previously rejected outright.
+   */
+  maxUploadBytes: envInt("MAX_UPLOAD_BYTES", 256 * 1024 * 1024), // 256MB
 
   /** Max concurrent randomization subprocesses the worker will run at once. */
   workerConcurrency: envInt("WORKER_CONCURRENCY", 1),

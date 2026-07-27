@@ -21,7 +21,7 @@ services:
       - JOB_DATA_DIR=/data/jobs
       - PORT=3001
       - JOB_RETENTION_HOURS=${JOB_RETENTION_HOURS:-24}
-      - MAX_UPLOAD_BYTES=${MAX_UPLOAD_BYTES:-67108864}
+      - MAX_UPLOAD_BYTES=${MAX_UPLOAD_BYTES:-268435456}
       - RATE_LIMIT_JOBS_PER_HOUR=${RATE_LIMIT_JOBS_PER_HOUR:-5}
     volumes:
       - job-data:/data/jobs

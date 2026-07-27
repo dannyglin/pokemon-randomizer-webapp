@@ -69,21 +69,6 @@
       "COMPLETELY_RANDOM",
       "SIMILAR_STRENGTH"
     ],
-    "TotemPokemonMod": [
-      "UNCHANGED",
-      "RANDOM",
-      "SIMILAR_STRENGTH"
-    ],
-    "AllyPokemonMod": [
-      "UNCHANGED",
-      "RANDOM",
-      "SIMILAR_STRENGTH"
-    ],
-    "AuraMod": [
-      "UNCHANGED",
-      "RANDOM",
-      "SAME_STRENGTH"
-    ],
     "TMsMod": [
       "UNCHANGED",
       "RANDOM"
@@ -834,55 +819,6 @@
       "setter": "setCorrectStaticMusic",
       "type": "boolean",
       "group": "Static Pokemon"
-    },
-    {
-      "name": "totemPokemonMod",
-      "setter": "setTotemPokemonMod",
-      "type": "enum",
-      "enumType": "TotemPokemonMod",
-      "group": "Totem Pokemon",
-      "notes": "Totem Pokemon only exist in Gen 7 (Sun/Moon/Ultra Sun/Ultra Moon) ROMs. Java setter signature is `setTotemPokemonMod(boolean... bools)`. Internally it calls Settings.getEnum(TotemPokemonMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to TotemPokemonMod.values()[index_of_true]. The boolean array must be sized to TotemPokemonMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
-    },
-    {
-      "name": "allyPokemonMod",
-      "setter": "setAllyPokemonMod",
-      "type": "enum",
-      "enumType": "AllyPokemonMod",
-      "group": "Totem Pokemon",
-      "notes": "Controls the ally Pokemon that assist Totem Pokemon in battle. Java setter signature is `setAllyPokemonMod(boolean... bools)`. Internally it calls Settings.getEnum(AllyPokemonMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to AllyPokemonMod.values()[index_of_true]. The boolean array must be sized to AllyPokemonMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
-    },
-    {
-      "name": "auraMod",
-      "setter": "setAuraMod",
-      "type": "enum",
-      "enumType": "AuraMod",
-      "group": "Totem Pokemon",
-      "notes": "Controls the aura effect Totem Pokemon apply in battle. Java setter signature is `setAuraMod(boolean... bools)`. Internally it calls Settings.getEnum(AuraMod.class, bools), which requires exactly one `true` in the array (IllegalStateException otherwise) and maps it to AuraMod.values()[index_of_true]. The boolean array must be sized to AuraMod.values().length, with `true` at the position matching the selected enum constant's ordinal (declaration order, as listed in the top-level \"enums\" map) and `false` everywhere else. The shim should treat this as a single-select dropdown/radio driven by the enum, then translate the chosen enum name to the one-hot boolean array by ordinal before calling the setter via reflection."
-    },
-    {
-      "name": "randomizeTotemHeldItems",
-      "setter": "setRandomizeTotemHeldItems",
-      "type": "boolean",
-      "group": "Totem Pokemon"
-    },
-    {
-      "name": "totemLevelsModified",
-      "setter": "setTotemLevelsModified",
-      "type": "boolean",
-      "group": "Totem Pokemon"
-    },
-    {
-      "name": "totemLevelModifier",
-      "setter": "setTotemLevelModifier",
-      "type": "int",
-      "group": "Totem Pokemon",
-      "notes": "Percent modifier, range -50..50. Only relevant when totemLevelsModified is true."
-    },
-    {
-      "name": "allowTotemAltFormes",
-      "setter": "setAllowTotemAltFormes",
-      "type": "boolean",
-      "group": "Totem Pokemon"
     },
     {
       "name": "tmsMod",

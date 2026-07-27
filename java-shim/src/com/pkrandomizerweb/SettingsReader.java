@@ -410,27 +410,6 @@ public class SettingsReader {
         // correctStaticMusic
         json.put("correctStaticMusic", settings.isCorrectStaticMusic());
 
-        // totemPokemonMod -- Totem Pokemon only exist in Gen 7 (Sun/Moon/Ultra Sun/Ultra Moon) ROMs. Java setter signature is `se
-        json.put("totemPokemonMod", settings.getTotemPokemonMod().name());
-
-        // allyPokemonMod -- Controls the ally Pokemon that assist Totem Pokemon in battle. Java setter signature is `setAllyPoke
-        json.put("allyPokemonMod", settings.getAllyPokemonMod().name());
-
-        // auraMod -- Controls the aura effect Totem Pokemon apply in battle. Java setter signature is `setAuraMod(boolean
-        json.put("auraMod", settings.getAuraMod().name());
-
-        // randomizeTotemHeldItems
-        json.put("randomizeTotemHeldItems", settings.isRandomizeTotemHeldItems());
-
-        // totemLevelsModified
-        json.put("totemLevelsModified", settings.isTotemLevelsModified());
-
-        // totemLevelModifier -- Percent modifier, range -50..50. Only relevant when totemLevelsModified is true.
-        json.put("totemLevelModifier", settings.getTotemLevelModifier());
-
-        // allowTotemAltFormes
-        json.put("allowTotemAltFormes", settings.isAllowTotemAltFormes());
-
         // tmsMod -- Java setter signature is `setTmsMod(boolean... bools)`. Internally it calls Settings.getEnum(TMsMod.
         json.put("tmsMod", settings.getTmsMod().name());
 

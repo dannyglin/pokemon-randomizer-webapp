@@ -13,6 +13,8 @@ export interface JobRecord {
     outputRom?: string;
     logFile?: string;
   };
+  /** Sanitized base name (no extension) of the originally uploaded ROM — used to name the download, e.g. "<name>_randomized.gba" instead of "output.gba". */
+  originalRomBaseName: string;
   error?: string;
 }
 

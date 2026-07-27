@@ -471,39 +471,6 @@ public class SettingsBuilder {
         // correctStaticMusic
         settings.setCorrectStaticMusic(json.optBoolean("correctStaticMusic", false));
 
-        // totemPokemonMod -- Totem Pokemon only exist in Gen 7 (Sun/Moon/Ultra Sun/Ultra Moon) ROMs. Java setter signature is `se
-        {
-            boolean[] totemPokemonModBools = new boolean[Settings.TotemPokemonMod.values().length];
-            totemPokemonModBools[Settings.TotemPokemonMod.valueOf(json.optString("totemPokemonMod", "UNCHANGED")).ordinal()] = true;
-            settings.setTotemPokemonMod(totemPokemonModBools);
-        }
-
-        // allyPokemonMod -- Controls the ally Pokemon that assist Totem Pokemon in battle. Java setter signature is `setAllyPoke
-        {
-            boolean[] allyPokemonModBools = new boolean[Settings.AllyPokemonMod.values().length];
-            allyPokemonModBools[Settings.AllyPokemonMod.valueOf(json.optString("allyPokemonMod", "UNCHANGED")).ordinal()] = true;
-            settings.setAllyPokemonMod(allyPokemonModBools);
-        }
-
-        // auraMod -- Controls the aura effect Totem Pokemon apply in battle. Java setter signature is `setAuraMod(boolean
-        {
-            boolean[] auraModBools = new boolean[Settings.AuraMod.values().length];
-            auraModBools[Settings.AuraMod.valueOf(json.optString("auraMod", "UNCHANGED")).ordinal()] = true;
-            settings.setAuraMod(auraModBools);
-        }
-
-        // randomizeTotemHeldItems
-        settings.setRandomizeTotemHeldItems(json.optBoolean("randomizeTotemHeldItems", false));
-
-        // totemLevelsModified
-        settings.setTotemLevelsModified(json.optBoolean("totemLevelsModified", false));
-
-        // totemLevelModifier -- Percent modifier, range -50..50. Only relevant when totemLevelsModified is true.
-        settings.setTotemLevelModifier(json.optInt("totemLevelModifier", 0));
-
-        // allowTotemAltFormes
-        settings.setAllowTotemAltFormes(json.optBoolean("allowTotemAltFormes", false));
-
         // tmsMod -- Java setter signature is `setTmsMod(boolean... bools)`. Internally it calls Settings.getEnum(TMsMod.
         {
             boolean[] tmsModBools = new boolean[Settings.TMsMod.values().length];

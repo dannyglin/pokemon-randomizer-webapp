@@ -32,9 +32,23 @@ export function App() {
       .catch((err) => setSchemaError(err instanceof Error ? err.message : String(err)));
   }, []);
 
+  const autoDownloadedRef = useRef<Set<string>>(new Set());
+
+  const triggerDownload = (url: string) => {
+    const a = document.createElement("a");
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   useEffect(() => {
     if (!job || job.status === "complete" || job.status === "failed") {
       if (pollRef.current) window.clearInterval(pollRef.current);
+      if (job?.status === "complete" && job.downloadUrl && !autoDownloadedRef.current.has(job.id)) {
+        autoDownloadedRef.current.add(job.id);
+        triggerDownload(job.downloadUrl);
+      }
       return;
     }
     pollRef.current = window.setInterval(async () => {

@@ -13,6 +13,33 @@ export const jobsRouter = Router();
 
 const jobStore = new JobStore(redis);
 
+/**
+ * Rejects an oversized upload before multer starts streaming the body in,
+ * using the browser-sent Content-Length header. Without this, exceeding
+ * multer's `limits.fileSize` mid-stream aborts the connection while the
+ * client is still writing the request body — browsers report that as a
+ * bare "NetworkError when attempting to fetch resource," not a clean HTTP
+ * error, which is confusing and gives the user nothing to act on. This
+ * turns that into an immediate, well-formed 413 response instead. (Multer's
+ * own fileSize limit stays on too, as a backstop for a missing/lying
+ * Content-Length header.)
+ */
+function rejectOversizedUpload(req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) {
+  const contentLength = Number(req.headers["content-length"]);
+  const overhead = 1024 * 1024; // multipart boundaries + the other form fields
+  if (Number.isFinite(contentLength) && contentLength > config.maxUploadBytes + overhead) {
+    return res.status(413).json({ error: `ROM exceeds the ${Math.round(config.maxUploadBytes / 1024 / 1024)}MB limit.` });
+  }
+  next();
+}
+
+/** Strips directory components/extension and anything that isn't safe in a Content-Disposition filename. */
+function sanitizeFileNameBase(originalName: string): string {
+  const base = path.parse(originalName).name;
+  const cleaned = base.replace(/[^a-zA-Z0-9 _.-]/g, "_").trim();
+  return cleaned.length > 0 ? cleaned : "rom";
+}
+
 const createJobBodySchema = z.object({
   settings: z.string().min(1), // JSON-encoded settings object, validated shape-wise by the worker/shim
   generateLog: z.enum(["true", "false"]).default("false"),
@@ -21,6 +48,7 @@ const createJobBodySchema = z.object({
 
 jobsRouter.post(
   "/",
+  rejectOversizedUpload,
   assignJobId(() => uuidv4()),
   upload.fields([{ name: "rom", maxCount: 1 }]),
   async (req, res) => {
@@ -83,6 +111,7 @@ jobsRouter.post(
       files: {
         inputRom: path.basename(romFile.path),
       },
+      originalRomBaseName: sanitizeFileNameBase(romFile.originalname),
     };
     await jobStore.create(record, config.jobRetentionHours * 60 * 60);
 
@@ -112,7 +141,9 @@ jobsRouter.get("/:id/download", async (req, res) => {
   if (!record || record.status !== "complete" || !record.files.outputRom) {
     return res.status(404).json({ error: "No completed download available for this job." });
   }
-  res.download(path.join(jobDir(record.id), record.files.outputRom));
+  const ext = path.extname(record.files.outputRom);
+  const downloadName = `${record.originalRomBaseName}_randomized${ext}`;
+  res.download(path.join(jobDir(record.id), record.files.outputRom), downloadName);
 });
 
 jobsRouter.get("/:id/log", async (req, res) => {
