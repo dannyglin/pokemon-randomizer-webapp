@@ -36,6 +36,15 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage,
   limits: {
-    fileSize: config.maxUploadBytes,
+    // Deliberately a little above config.maxUploadBytes, not equal to it —
+    // multer/busboy's own fileSize limit has a well-known off-by-one where
+    // a file at *exactly* the configured value still gets rejected mid-
+    // stream (it checks while streaming, not with a clean post-upload
+    // comparison). The real enforcement of the limit is the explicit
+    // `romFile.size > config.maxUploadBytes` check in jobs.ts, which runs
+    // after the full size is known and uses strict "greater than" — this
+    // buffer just keeps multer's own internal check from firing first and
+    // incorrectly rejecting a legitimately-sized file.
+    fileSize: config.maxUploadBytes + 1024,
   },
 });
